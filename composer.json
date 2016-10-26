@@ -1,0 +1,13 @@
+{
+  "name": "korzilius",
+  "authors": [
+    {
+      "name": "Fränz Friederes",
+      "email": "fraenz@frieder.es"
+    }
+  ],
+  "require": {
+    "zendframework/zendframework": "^3.0.0",
+    "vlucas/phpdotenv": "^2.0.1"
+  }
+}

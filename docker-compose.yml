@@ -1,0 +1,31 @@
+---
+  version: "2"
+
+  services:
+    korziliusweb:
+      container_name: korzilius-web
+      build: "."
+      image: korzilius-web:latest
+      links:
+        - korziliusdb:db
+      volumes:
+        - .:/var/www/html
+      ports:
+        - "80:80"
+    korziliusdb:
+      container_name: korzilius-db
+      image: mysql:latest
+      volumes:
+        - database:/var/lib/mysql
+      environment:
+        - MYSQL_RANDOM_ROOT_PASSWORD=yes
+        - MYSQL_DATABASE=korzilius
+        - MYSQL_USER=korzilius
+        - MYSQL_PASSWORD=korzilius
+      ports:
+        - "3306:3306"
+  volumes:
+    database:
+      driver: local
+    localfiles:
+      driver: local
