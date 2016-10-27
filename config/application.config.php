@@ -3,6 +3,7 @@ return [
   'modules' => [
     'Zend\Router',
     'Zend\Validator',
+    'Backbone',
     'Application',
   ],
   'module_listener_options' => [
