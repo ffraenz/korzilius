@@ -2,8 +2,10 @@ FROM php:5.6-apache
 
 # install php extensions
 RUN apt-get update \
- && apt-get install -y git zlib1g-dev vim libmcrypt-dev \
- && docker-php-ext-install zip mysqli pdo pdo_mysql mcrypt
+ && apt-get install -y git zlib1g-dev vim libz-dev libmcrypt-dev libmemcached-dev \
+ && pecl install memcached \
+ && docker-php-ext-install zip mysqli pdo pdo_mysql mcrypt \
+ && docker-php-ext-enable memcached
 
 # enable apache2 mods
 RUN a2enmod rewrite

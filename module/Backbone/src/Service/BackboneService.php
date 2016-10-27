@@ -3,12 +3,14 @@
 namespace Backbone\Service;
 
 use Zend\Http\Client as HttpClient;
+use Zend\Cache\Storage\Adapter\AbstractAdapter;
 use Zend\Http\Request;
 use Zend\Json\Json;
 
 class BackboneService {
 
   protected $httpClient;
+  protected $cacheAdapter;
 
   protected $backboneEndpoint;
   protected $backboneApikey;
@@ -36,6 +38,19 @@ class BackboneService {
 
   protected function getBackboneApikey() {
     return $this->backboneApikey;
+  }
+
+  public function hasCacheAdapter() {
+    return $this->cacheAdapter !== null;
+  }
+
+  public function getCacheAdapter() {
+    return $this->cacheAdapter;
+  }
+
+  public function setCacheAdapter(AbstractAdapter $cacheAdapter) {
+    $this->cacheAdapter = $cacheAdapter;
+    return $this;
   }
 
   public function requestResource(
@@ -66,17 +81,35 @@ class BackboneService {
       'User-Agent' => 'Korzilius/0.0.1',
     ]);
 
-    // retrieve response from backbone
-    $response = $this->getHttpClient()->send($request);
+    $data = null;
+    $cacheKey = null;
 
-    if ($response->isNotFound()) {
-      // return null if resource not found
-      return null;
+    if ($this->hasCacheAdapter()) {
+      // compose cache key
+      $hash = hash('sha1', $request->toString());
+      $cacheKey = 'backbone' . $hash;
+
+      // check if cached response is available
+      if ($this->getCacheAdapter()->hasItem($cacheKey)) {
+        $data = $this->getCacheAdapter()->getItem($cacheKey);
+      }
     }
 
-    // decode json data
-    $json = $response->getBody();
-    $data = Json::decode($json, Json::TYPE_ARRAY);
+    if ($data === null) {
+      // retrieve response from backbone
+      $response = $this->getHttpClient()->send($request);
+
+      if ($response->isOk()) {
+        // decode json data
+        $json = $response->getBody();
+        $data = Json::decode($json, Json::TYPE_ARRAY);
+
+        // cache data
+        if ($this->hasCacheAdapter()) {
+          $this->getCacheAdapter()->setItem($cacheKey, $data);
+        }
+      }
+    }
 
     return $data;
   }

@@ -24,6 +24,11 @@
         - MYSQL_PASSWORD=korzilius
       ports:
         - "3306:3306"
+    ufadailywallcache:
+      container_name: korzilius-cache
+      image: memcached:latest
+      ports:
+        - "11211:11211"
   volumes:
     database:
       driver: local
