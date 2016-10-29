@@ -3,8 +3,8 @@ return [
   'modules' => [
     'Zend\Router',
     'Zend\Validator',
-    'Backbone',
-    'Application',
+    'KoBackbone',
+    'Korzilius',
   ],
   'module_listener_options' => [
     'module_paths' => [

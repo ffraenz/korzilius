@@ -1,6 +1,6 @@
 <?php
 
-namespace Backbone;
+namespace Korzilius;
 
 class Module {
 

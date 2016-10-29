@@ -1,6 +1,6 @@
 <?php
 
-namespace Application;
+namespace Korzilius;
 
 use Zend\Router\Http\Literal;
 

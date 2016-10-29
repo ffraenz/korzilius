@@ -1,11 +1,11 @@
 <?php
 
-namespace Application\Controller;
+namespace Korzilius\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
-use Backbone\Service\BackboneService;
+use KoBackbone\Service\BackboneService;
 
 class IndexController extends AbstractActionController {
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Factory\Controller;
+namespace Korzilius\Factory\Controller;
 
 use Zend\ServiceManager\Factory\FactoryInterface;
 use Interop\Container\ContainerInterface;
@@ -10,7 +10,7 @@ class IndexController implements FactoryInterface {
   public function __invoke(
     ContainerInterface $container, $requestedName, array $options = null
   ) {
-    return (new \Application\Controller\IndexController())
-      ->setBackboneService($container->get('Backbone\Service\Backbone'));
+    return (new \Korzilius\Controller\IndexController())
+      ->setBackboneService($container->get('KoBackbone\Service\Backbone'));
   }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Backbone\Service;
+namespace KoBackbone\Service;
 
 use Zend\Http\Client as HttpClient;
 use Zend\Cache\Storage\Adapter\AbstractAdapter;
