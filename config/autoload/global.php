@@ -5,9 +5,15 @@ return [
       'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
     ],
   ],
-  'backbone' => [
+  'korzilius_backbone' => [
     'endpoint' => getenv('KORZILIUS_BACKBONE_ENDPOINT'),
     'apikey' => getenv('KORZILIUS_BACKBONE_APIKEY'),
+  ],
+  'korzilius_facebook' => [
+    'app_id' => getenv('FACEBOOK_APP_ID'),
+    'app_secret' => getenv('FACEBOOK_APP_SECRET'),
+    'webhook_verify_token' => getenv('FACEBOOK_WEBHOOK_VERIFY_TOKEN'),
+    'page_access_token' => getenv('FACEBOOK_PAGE_ACCESS_TOKEN'),
   ],
   'caches' => [
     'memcached' => [

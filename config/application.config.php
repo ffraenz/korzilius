@@ -4,6 +4,7 @@ return [
     'Zend\Router',
     'Zend\Validator',
     'KoBackbone',
+    'KoFacebook',
     'Korzilius',
   ],
   'module_listener_options' => [

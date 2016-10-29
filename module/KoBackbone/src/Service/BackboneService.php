@@ -12,8 +12,8 @@ class BackboneService {
   protected $httpClient;
   protected $cacheAdapter;
 
-  protected $backboneEndpoint;
-  protected $backboneApikey;
+  protected $endpoint;
+  protected $apikey;
 
   protected function getHttpClient() {
     if ($this->httpClient === null) {
@@ -27,17 +27,17 @@ class BackboneService {
   }
 
   public function configure(array $config) {
-    $this->backboneEndpoint = $config['backbone']['endpoint'];
-    $this->backboneApikey = $config['backbone']['apikey'];
+    $this->endpoint = $config['korzilius_backbone']['endpoint'];
+    $this->apikey = $config['korzilius_backbone']['apikey'];
     return $this;
   }
 
-  protected function getBackboneEndpoint() {
-    return $this->backboneEndpoint;
+  protected function getEndpoint() {
+    return $this->endpoint;
   }
 
-  protected function getBackboneApikey() {
-    return $this->backboneApikey;
+  protected function getApikey() {
+    return $this->apikey;
   }
 
   public function hasCacheAdapter() {
@@ -61,11 +61,11 @@ class BackboneService {
     $request->setMethod($method);
 
     // compose url
-    $url = $this->getBackboneEndpoint() . $path;
+    $url = $this->getEndpoint() . $path;
     $request->setUri($url);
 
     // add api key to parameters
-    $parameters['apikey'] = $this->getBackboneApikey();
+    $parameters['apikey'] = $this->getApikey();
 
     // add parameters to request
     if ($method === Request::METHOD_GET) {
