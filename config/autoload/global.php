@@ -10,6 +10,7 @@ return [
     'apikey' => getenv('KORZILIUS_BACKBONE_APIKEY'),
   ],
   'korzilius_facebook' => [
+    'graph_api_endpoint' => 'https://graph.facebook.com/v2.8',
     'app_id' => getenv('FACEBOOK_APP_ID'),
     'app_secret' => getenv('FACEBOOK_APP_SECRET'),
     'webhook_verify_token' => getenv('FACEBOOK_WEBHOOK_VERIFY_TOKEN'),

@@ -84,7 +84,7 @@ class BackboneService {
     $data = null;
     $cacheKey = null;
 
-    if ($this->hasCacheAdapter()) {
+    if ($this->hasCacheAdapter() && $method === Request::METHOD_GET) {
       // compose cache key
       $hash = hash('sha1', $request->toString());
       $cacheKey = 'backbone' . $hash;

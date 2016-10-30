@@ -2,17 +2,35 @@
 
 namespace KoFacebook\Service;
 
+use DateTime;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Json\Json;
 
 use KoFacebook\Exception\WebhookServiceException;
-use KoFacebook\Entity\WebhookUpdate;
 
-class WebhookService {
+class WebhookService implements EventManagerAwareInterface {
+
+  protected $events;
 
   protected $appSecret;
   protected $webhookVerifyToken;
+
+  public function getEventManager() {
+    if ($this->events === null) {
+      $this->setEventManager(new EventManager());
+    }
+    return $this->events;
+  }
+
+  public function setEventManager(EventManagerInterface $events) {
+    $events->setIdentifiers([__CLASS__, get_called_class()]);
+    $this->events = $events;
+    return $this;
+  }
 
   public function configure(array $config) {
     $facebookConfig = $config['korzilius_facebook'];
@@ -62,12 +80,10 @@ class WebhookService {
         sprintf('Unexpected mode "%s".', $mode), 400);
     }
 
-    // prepare response to send the challenge back
+    // send the challenge back to complete verification
     $response->setStatusCode(200);
     $response->setContent($challenge);
-
-    // no update in this webhook call, return null
-    return null;
+    return $response;
   }
 
   public function handleUpdateRequest(Request $request, Response $response) {
@@ -96,11 +112,76 @@ class WebhookService {
       throw new WebhookServiceException('Unexpected signature.', 401);
     }
 
-    // prepare empty ok response
+    // create webhook update object
+    $data = Json::decode($json, Json::TYPE_ARRAY);
+    $this->handleUpdate($data);
+
+    // respond with an empty ok response
     $response->setStatusCode(200);
     $response->setContent('');
+    return $response;
+  }
 
-    // return webhook update
-    return new WebhookUpdate($json);
+  public function handleUpdate($data) {
+    $objectType = $data['object'];
+    $entries = $data['entry'];
+
+    // iterate over update entries
+    foreach ($entries as $entry) {
+      if (isset($entry['messaging'])) {
+        // this is an update from the messenger platform
+        // iterate over messaging entries
+        foreach ($entry['messaging'] as $messagingEntry) {
+          if (isset($messagingEntry['message'])) {
+            $this->handleMessageReceivedUpdate($messagingEntry);
+          } else if (isset($messagingEntry['delivery'])) {
+            $this->handleMessageDeliveredUpdate($messagingEntry);
+          } else if (isset($messagingEntry['read'])) {
+            $this->handleMessageReadUpdate($messagingEntry);
+          }
+        }
+      }
+    }
+  }
+
+  public function handleMessageReceivedUpdate($data) {
+    $time = new DateTime();
+    $time->setTimestamp(intval($data['timestamp'] / 1000));
+
+    $attachments = [];
+    if (isset($data['message']['attachments'])) {
+      $attachments = $data['message']['attachments'];
+    }
+
+    $this->getEventManager()->trigger('messageReceived', $this, [
+      'userId' => $data['sender']['id'],
+      'pageId' => $data['recipient']['id'],
+      'messageId' => $data['message']['mid'],
+      'time' => $time,
+      'text' => $data['message']['text'],
+      'attachments' => $attachments,
+    ]);
+  }
+
+  public function handleMessageDeliveredUpdate($data) {
+    $watermark = new DateTime();
+    $watermark->setTimestamp(intval($data['delivery']['watermark'] / 1000));
+
+    $this->getEventManager()->trigger('messageDelivered', $this, [
+      'userId' => $data['sender']['id'],
+      'pageId' => $data['recipient']['id'],
+      'watermark' => $watermark,
+    ]);
+  }
+
+  public function handleMessageReadUpdate($data) {
+    $watermark = new DateTime();
+    $watermark->setTimestamp(intval($data['read']['watermark'] / 1000));
+
+    $this->getEventManager()->trigger('messageRead', $this, [
+      'userId' => $data['sender']['id'],
+      'pageId' => $data['recipient']['id'],
+      'watermark' => $watermark,
+    ]);
   }
 }

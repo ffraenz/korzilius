@@ -7,7 +7,6 @@ use Zend\View\Model\JsonModel;
 
 use KoFacebook\Service\WebhookService;
 use KoFacebook\Exception\WebhookServiceException;
-use KoFacebook\Entity\WebhookUpdate;
 
 class WebhookController extends AbstractActionController {
 
@@ -27,9 +26,8 @@ class WebhookController extends AbstractActionController {
     $response = $this->getResponse();
 
     try {
-      // interpret this webhook request,
-      // retrieve update object and prepare response
-      $update = $this->getWebhookService()->handleRequest($request, $response);
+      // interpret this webhook request, trigger an event and respond to it
+      return $this->getWebhookService()->handleRequest($request, $response);
     } catch (WebhookServiceException $exception) {
       // log error
       trigger_error(sprintf(
@@ -45,12 +43,5 @@ class WebhookController extends AbstractActionController {
         'message' => $exception->getMessage(),
       ]);
     }
-
-    if ($update !== null) {
-      // handle update
-    }
-
-    // send back response prepared by webhook service
-    return $response;
   }
 }
