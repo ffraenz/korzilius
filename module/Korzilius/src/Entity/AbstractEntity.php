@@ -7,11 +7,17 @@ use DateTime;
 
 abstract class AbstractEntity {
 
-  protected $fieldTypeMap = [
-    'id' => 'int',
+  protected $fields = [
+    'id' => [
+      'type' => 'int',
+    ],
+    'createTime' => [
+      'type' => 'dateTime',
+    ],
+    'updateTime' => [
+      'type' => 'dateTime',
+    ],
   ];
-
-  protected $id;
 
   public function __call($name, $args) {
     $getOrSet = substr($name, 0, 3);
@@ -23,91 +29,103 @@ abstract class AbstractEntity {
         $name));
     }
 
-    $field = lcfirst(substr($name, 3));
+    $name = lcfirst(substr($name, 3));
 
-    if (!isset($this->fieldTypeMap[$field])) {
+    if (!isset($this->fields[$name])) {
       throw new Exception(sprintf(
         '%s - Unknown field "%s".',
         __METHOD__,
-        $field));
+        $name));
     }
 
-    $fieldType = $this->fieldTypeMap[$field];
-    $method = $getOrSet . ucfirst($fieldType) . 'Field';
+    $field = $this->fields[$name];
+    $method = $getOrSet . ucfirst($field['type']) . 'Field';
 
     if (!method_exists($this, $method)) {
-      // blank getter / setter
+      // use blank getter and setter
       if ($getOrSet === 'get') {
-        return $this->{$field};
+        return $this->getField($name);
       } else {
-        $this->{$field} = $args[0];
-        return $this;
+        return $this->setField($name, $args[0]);
       }
     }
 
     // call type specific getter / setter
-    array_unshift($args, $field);
+    array_unshift($args, $name);
     return call_user_func_array([$this, $method], $args);
   }
 
-  protected function setIntField($field, $value) {
+  public function getFields() {
+    return $this->fields;
+  }
+
+  public function getField($name) {
+    $field = $this->fields[$name];
+    if (!isset($field['value'])) {
+      return null;
+    }
+    return $field['value'];
+  }
+
+  public function setField($name, $value) {
+    $this->fields[$name]['value'] = $value;
+    return $this;
+  }
+
+  protected function setIntField($name, $value) {
     if ($value !== null && !is_numeric($value)) {
       throw new Exception(sprintf(
         '%s - Field "%s" expects a value of type integer.',
         __METHOD__,
-        $field));
+        $name));
     }
-    $this->{$field} = ($value !== null ? intval($value) : null);
-    return $this;
+    return $this->setField($name, $value !== null ? intval($value) : null);
   }
 
-  protected function setStringField($field, $value) {
+  protected function setStringField($name, $value) {
     if ($value !== null && !is_string($value)) {
       throw new Exception(sprintf(
         '%s - Field "%s" expects a value of type string.',
         __METHOD__,
-        $field));
+        $name));
     }
-    $this->{$field} = $value;
-    return $this;
+    return $this->setField($name, $value);
   }
 
-  protected function setDateTimeField($field, $value) {
+  protected function setDateTimeField($name, $value) {
     if ($value !== null && !$value instanceOf DateTime) {
       throw new Exception(sprintf(
         '%s - Field "%s" expects a value of type DateTime.',
         __METHOD__,
-        $field));
+        $name));
     }
-    $this->{$field} = $value;
-    return $this;
+    return $this->setField($name, $value);
   }
 
-  public function getKeyValueArrayField($field, $key = null, $default = null) {
-    if ($this->{$field} === null) {
+  public function getKeyValueArrayField($name, $key = null, $default = null) {
+    if ($key === null) {
+      return $this->getField($name);
+    }
+    if ($this->getField($name) === null) {
       return $default;
     }
-
-    if ($key === null) {
-      return $this->{$field};
+    if (isset($this->fields[$name]['value'][$key])) {
+      return $this->fields[$name]['value'][$key];
     }
-
-    if (isset($this->{$field}[$key])) {
-      return $this->{$field}[$key];
-    }
-
     return $default;
   }
 
   public function setKeyValueArrayField(
-    $field, $keyOrArray = null, $value = null
+    $name, $keyOrArray = null, $value = null
   ) {
     if (is_string($keyOrArray)) {
       // create empty array if it does not exist
-      if ($this->{$field} === null) {
-        $this->{$field} = [];
+      if ($this->getField($name) === null) {
+        $this->fields[$name]['value'] = [];
       }
-      $this->{$field}[$keyOrArray] = $value;
+      // set single array entry
+      $this->fields[$name]['value'][$keyOrArray] = $value;
+      return $this;
     }
 
     if ($keyOrArray !== null && !is_array($keyOrArray)) {
@@ -117,38 +135,36 @@ abstract class AbstractEntity {
         $field));
     }
 
-    $this->{$field} = $keyOrArray;
-    return $this;
+    return $this->setField($name, $keyOrArray);
   }
 
-  protected function setEntityField($field, $value) {
+  protected function setEntityField($name, $value) {
     if ($value !== null && !$value instanceOf AbstractEntity) {
       throw new Exception(sprintf(
         '%s - Field "%s" expects a value of type %s.',
         __METHOD__,
-        $field,
+        $name,
         __CLASS__));
     }
 
     // set entity id
     if ($value !== null) {
-      $this->{$field . 'Id'} = $value->getId();
+      $this->setField($name . 'Id', $value->getId());
     } else {
-      $this->{$field . 'Id'} = null;
+      $this->setField($name . 'Id', null);
     }
 
     // set entity
-    $this->{$field} = $value;
-    return $this;
+    return $this->setField($name, $value);
   }
 
-  protected function setEntityIdField($field, $value) {
-    if ($this->{$field} !== $value) {
-      $this->setIntField($field, $value);
+  protected function setEntityIdField($name, $value) {
+    if ($this->getField($name) !== $value) {
+      $this->setIntField($name, $value);
       // field name without 'Id'
-      $objectField = substr(0, -2);
+      $objectFieldName = substr($name, 0, -2);
       // clear object
-      $this->{$objectField} = null;
+      $this->setField($objectFieldName, null);
     }
     return $this;
   }

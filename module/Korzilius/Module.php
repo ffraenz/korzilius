@@ -2,45 +2,17 @@
 
 namespace Korzilius;
 
+use DateTime;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\Event;
 
 use KoFacebook\Service\GraphService;
+use Korzilius\Service\MessageService;
+use Korzilius\Entity\Message;
 
 class Module {
 
   protected $application;
-
-  public function onBootstrap(MvcEvent $event) {
-    $this->application = $event->getApplication();
-    $sharedEvents = $this->application->getEventManager()->getSharedManager();
-
-    $sharedEvents->attach(
-      'KoFacebook\Service\WebhookService',
-      'messageReceived',
-      [$this, 'onFacebookMessageReceived']);
-  }
-
-  public function onFacebookMessageReceived(Event $event) {
-    $serviceManager = $this->application->getServiceManager();
-    $graph = $serviceManager->get('KoFacebook\Service\GraphService');
-
-    $text = $event->getParam('text');
-    $userId = $event->getParam('userId');
-
-    if (in_array($text, ['mark_seen', 'typing_on', 'typing_off'])) {
-      $graph->createMessageSenderAction($userId, $text);
-    } else {
-      // echo message back
-      $graph->createMessage($userId, [ 'text' => $text ]);
-    }
-
-    trigger_error(sprintf(
-      '%s - Message recieved: %s',
-      __METHOD__,
-      $event->getParam('text')
-    ), E_USER_NOTICE);
-  }
 
   public function getAutoloaderConfig() {
     return [
@@ -54,5 +26,49 @@ class Module {
 
   public function getConfig() {
     return include __DIR__ . '/config/module.config.php';
+  }
+
+  public function onBootstrap(MvcEvent $event) {
+    $this->application = $event->getApplication();
+    $sharedEvents = $this->application->getEventManager()->getSharedManager();
+
+    $sharedEvents->attach(
+      'KoFacebook\Service\WebhookService',
+      'messageReceived',
+      [$this, 'onFacebookMessageReceived']);
+  }
+
+  public function onFacebookMessageReceived(Event $event) {
+    // pull services
+    $serviceManager = $this->application->getServiceManager();
+    $messageService = $serviceManager->get(MessageService::class);
+
+    // match this facebook user id to a client
+    // $client = $clientMapper->fetchSingleWithFacebookUserId(
+    //   $event->getParam('userId'));
+    $client = null;
+
+    // compose facebook message
+    $message = (new Message())
+      ->setExternalId($event->getParam('id'))
+      ->setType('facebook')
+      ->setSendTime($event->getParam('time'))
+      ->setDeliveredTime(new DateTime())
+      ->setSenderClient($client)
+      ->setText($event->getParam('text'));
+
+    $messageService->send($message);
+
+    // echo message
+    $graph = $serviceManager->get(GraphService::class);
+    $text = $event->getParam('text');
+    $userId = $event->getParam('userId');
+    $graph->createMessage($userId, [ 'text' => $text ]);
+
+    trigger_error(sprintf(
+      '%s - Message recieved: %s',
+      __METHOD__,
+      $event->getParam('text')
+    ), E_USER_NOTICE);
   }
 }

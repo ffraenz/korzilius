@@ -6,55 +6,72 @@ use DateTime;
 
 class Message extends AbstractEntity {
 
-  protected $fieldTypeMap = [
-    'id' => 'int',
-    'externalId' => 'string',
-    'type' => 'string',
+  protected $fields = [
+    // identification
+    'id' => [
+      'type' => 'int',
+    ],
+    'externalId' => [
+      'type' => 'string',
+    ],
+    'type' => [
+      'type' => 'string',
+    ],
 
-    'senderClientId' => 'entityId',
-    'senderClient' => 'entity',
-    'senderUserId' => 'entityId',
-    'senderUser' => 'entity',
-    'receiverClientId' => 'entityId',
-    'receiverClient' => 'entity',
-    'receiverUserId' => 'entityId',
-    'receiverUser' => 'entity',
+    // sender
+    'senderClientId' => [
+      'type' => 'entityId',
+    ],
+    'senderClient' => [
+      'type' => 'entity',
+    ],
+    'senderUserId' => [
+      'type' => 'entityId',
+    ],
+    'senderUser' => [
+      'type' => 'entity',
+    ],
 
-    'text' => 'string',
-    'targetId' => 'string',
-    'meta' => 'keyValueArray',
+    // receiver
+    'receiverClientId' => [
+      'type' => 'entityId',
+    ],
+    'receiverClient' => [
+      'type' => 'entity',
+    ],
+    'receiverUserId' => [
+      'type' => 'entityId',
+    ],
+    'receiverUser' => [
+      'type' => 'entity',
+    ],
 
-    'createTime' => 'dateTime',
-    'deliveredTime' => 'dateTime',
-    'readTime' => 'dateTime',
+    // content
+    'text' => [
+      'type' => 'string',
+    ],
+    'targetId' => [
+      'type' => 'string',
+    ],
+    'meta' => [
+      'type' => 'keyValueArray',
+    ],
+
+    // timestamps
+    'sendTime' => [
+      'type' => 'dateTime',
+    ],
+    'deliveredTime' => [
+      'type' => 'dateTime',
+    ],
+    'readTime' => [
+      'type' => 'dateTime',
+    ],
+    'createTime' => [
+      'type' => 'dateTime',
+    ],
+    'updateTime' => [
+      'type' => 'dateTime',
+    ],
   ];
-
-  // identification
-  protected $id;
-  protected $externalId;
-  protected $type;
-
-  // sender and receiver
-  protected $senderClientId;
-  protected $senderClient;
-  protected $senderUserId;
-  protected $senderUser;
-  protected $receiverClientId;
-  protected $receiverClient;
-  protected $receiverUserId;
-  protected $receiverUser;
-
-  // content
-  protected $text;
-  protected $targetId;
-  protected $meta;
-
-  // timestamps
-  protected $createTime;
-  protected $deliveredTime;
-  protected $readTime;
-
-  public function __construct() {
-    $this->createTime = new DateTime();
-  }
 }

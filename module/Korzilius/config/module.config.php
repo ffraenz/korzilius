@@ -3,8 +3,23 @@
 namespace Korzilius;
 
 use Zend\Router\Http\Literal;
+use Zend\ServiceManager\Factory\InvokableFactory;
 
 return [
+  'service_manager' => [
+    'factories' => [
+      Service\MessageService::class => Factory\Service\MessageService::class,
+      Mapper\MessageMapper::class => InvokableFactory::class,
+    ],
+    'initializers' => [
+      Initializer\DbAdapterInitializer::class,
+    ],
+  ],
+  'controllers' => [
+    'factories' => [
+      Controller\IndexController::class => Factory\Controller\IndexController::class,
+    ],
+  ],
   'router' => [
     'routes' => [
       'home' => [
@@ -17,11 +32,6 @@ return [
           ],
         ],
       ],
-    ],
-  ],
-  'controllers' => [
-    'factories' => [
-      Controller\IndexController::class => Factory\Controller\IndexController::class,
     ],
   ],
   'view_manager' => [

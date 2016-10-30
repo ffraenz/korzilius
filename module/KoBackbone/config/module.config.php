@@ -1,8 +1,11 @@
 <?php
+
+namespace KoBackbone;
+
 return [
   'service_manager' => [
     'factories' => [
-      'KoBackbone\Service\Backbone' => 'KoBackbone\Factory\Service\BackboneService',
+      Service\BackboneService::class => Factory\Service\BackboneService::class,
     ],
   ],
 ];

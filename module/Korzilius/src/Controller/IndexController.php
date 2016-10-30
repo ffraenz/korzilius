@@ -2,14 +2,18 @@
 
 namespace Korzilius\Controller;
 
+use DateTime;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
 use KoBackbone\Service\BackboneService;
+use Korzilius\Service\MessageService;
+use Korzilius\Entity\Message;
 
 class IndexController extends AbstractActionController {
 
   protected $backboneService;
+  protected $messageService;
 
   public function getBackboneService() {
     return $this->backboneService;
@@ -20,14 +24,20 @@ class IndexController extends AbstractActionController {
     return $this;
   }
 
-  public function indexAction() {
-    // $client = $this->getBackboneService()->get('/clients/100660');
+  public function getMessageService() {
+    return $this->messageService;
+  }
 
-    $message = new \Korzilius\Entity\Message();
-    $message->setType('facebook');
+  public function setMessageService(MessageService $messageService) {
+    $this->messageService = $messageService;
+    return $this;
+  }
+
+  public function indexAction() {
+    $client = $this->getBackboneService()->get('/clients/100660');
 
     echo '<pre>';
-    var_dump($message);
+    var_dump($client);
     echo '</pre>';
 
     return new ViewModel();

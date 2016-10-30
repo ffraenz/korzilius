@@ -156,7 +156,7 @@ class WebhookService implements EventManagerAwareInterface {
     $this->getEventManager()->trigger('messageReceived', $this, [
       'userId' => $data['sender']['id'],
       'pageId' => $data['recipient']['id'],
-      'messageId' => $data['message']['mid'],
+      'id' => $data['message']['mid'],
       'time' => $time,
       'text' => $data['message']['text'],
       'attachments' => $attachments,

@@ -1,8 +1,29 @@
 <?php
+
+use Zend\Cache\Service\StorageCacheAbstractServiceFactory;
+use Zend\Db\Adapter\AdapterServiceFactory;
+use Zend\Db\Adapter\Adapter;
+
 return [
   'service_manager' => [
     'abstract_factories' => [
-      'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
+      StorageCacheAbstractServiceFactory::class,
+    ],
+    'factories' => [
+      Adapter::class => AdapterServiceFactory::class,
+    ],
+  ],
+  'db' => [
+    'driver' => 'Pdo',
+    'dsn' => sprintf(
+      'mysql:dbname=%s;host=%s',
+      getenv('DB_NAME'),
+      getenv('DB_HOST')
+    ),
+    'username' => getenv('DB_USER'),
+    'password' => getenv('DB_PASSWORD'),
+    'driver_options' => [
+      PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8mb4\''
     ],
   ],
   'korzilius_backbone' => [
