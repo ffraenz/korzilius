@@ -8,7 +8,7 @@ return [
   'service_manager' => [
     'factories' => [
       Service\WebhookService::class => Factory\Service\WebhookService::class,
-      Service\FacebookService::class => Factory\Service\FacebookService::class,
+      Service\GraphService::class => Factory\Service\GraphService::class,
     ],
   ],
   'controllers' => [

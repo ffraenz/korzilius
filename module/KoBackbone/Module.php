@@ -5,6 +5,8 @@ namespace KoBackbone;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\Event;
 
+use KoFacebook\Service\GraphService;
+
 class Module {
 
   protected $application;
@@ -21,20 +23,17 @@ class Module {
 
   public function onFacebookMessageReceived(Event $event) {
     $serviceManager = $this->application->getServiceManager();
+    $graph = $serviceManager->get('KoFacebook\Service\GraphService');
 
-    $facebookService = $serviceManager->get('KoFacebook\Service\FacebookService');
-    $config = $serviceManager->get('config');
+    $text = $event->getParam('text');
+    $userId = $event->getParam('userId');
 
-    $pageAccessToken = $config['korzilius_facebook']['page_access_token'];
-
-    $facebookService->create('/me/messages?access_token=' . $pageAccessToken, [
-      'recipient' => [
-        'id' => $event->getParam('userId'),
-      ],
-      'message' => [
-        'text' => 'Echo! ' . $event->getParam('text'),
-      ],
-    ]);
+    if (in_array($text, ['mark_seen', 'typing_on', 'typing_off'])) {
+      $graph->createMessageSenderAction($userId, $text);
+    } else {
+      // echo message back
+      $graph->createMessage($userId, [ 'text' => $text ]);
+    }
 
     trigger_error(sprintf(
       '%s - Message recieved: %s',

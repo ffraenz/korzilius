@@ -39,8 +39,10 @@ class WebhookController extends AbstractActionController {
       // respond
       $response->setStatusCode($exception->getCode());
       return new JsonModel([
-        'error' => true,
-        'message' => $exception->getMessage(),
+        'error' => [
+          'message' => $exception->getMessage(),
+          'code' => $exception->getCode(),
+        ],
       ]);
     }
   }
