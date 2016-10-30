@@ -21,10 +21,13 @@ class IndexController extends AbstractActionController {
   }
 
   public function indexAction() {
-    $client = $this->getBackboneService()->get('/clients/100660');
+    // $client = $this->getBackboneService()->get('/clients/100660');
+
+    $message = new \Korzilius\Entity\Message();
+    $message->setType('facebook');
 
     echo '<pre>';
-    var_dump($client);
+    var_dump($message);
     echo '</pre>';
 
     return new ViewModel();
