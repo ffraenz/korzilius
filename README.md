@@ -1,7 +1,7 @@
 
 # korzilius
 
-This is the brain of the Korzilius app.
+Internal service used by [FF Friederes](https://friederes.lu/).
 
 ## Development
 
@@ -29,6 +29,12 @@ Run `composer install`.
 
 ```
 docker exec -i korzilius-web /bin/bash -c "composer install"
+```
+
+To make webhooks reachable by external services, the local development environment needs to be exposed to the web. This can be achieved using SSH port forwarding.
+
+```
+ssh -R REMOTE_PORT:DOCKER_MACHINE_IP_HERE:80 REMOTE_HOST
 ```
 
 ## Deployment
