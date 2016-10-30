@@ -13,6 +13,7 @@ class GraphService {
   protected $httpClient;
 
   protected $graphApiEndpoint;
+  protected $appSecret;
   protected $pageAccessToken;
 
   const SENDER_ACTION_MARK_SEEN = 'mark_seen';
@@ -33,12 +34,17 @@ class GraphService {
   public function configure(array $config) {
     $facebookConfig = $config['korzilius_facebook'];
     $this->graphApiEndpoint = $facebookConfig['graph_api_endpoint'];
+    $this->appSecret = $facebookConfig['app_secret'];
     $this->pageAccessToken = $facebookConfig['page_access_token'];
     return $this;
   }
 
   public function getGraphApiEndpoint() {
     return $this->graphApiEndpoint;
+  }
+
+  public function getAppSecret() {
+    return $this->appSecret;
   }
 
   public function getPageAccessToken() {
@@ -62,6 +68,13 @@ class GraphService {
       'Accept' => 'application/json',
       'User-Agent' => 'Korzilius/0.0.1',
     ]);
+
+    // add app secret proof to request if
+    // the access token parameter is included
+    if (isset($parameters['access_token'])) {
+      $parameters['appsecret_proof'] =
+        hash_hmac('sha256', $parameters['access_token'], $this->getAppSecret());
+    }
 
     // add parameters
     $request->getQuery()->fromArray($parameters);
