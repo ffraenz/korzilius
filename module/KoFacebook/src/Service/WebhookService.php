@@ -16,6 +16,7 @@ class WebhookService implements EventManagerAwareInterface {
 
   protected $events;
 
+  protected $appId;
   protected $appSecret;
   protected $webhookVerifyToken;
 
@@ -34,9 +35,14 @@ class WebhookService implements EventManagerAwareInterface {
 
   public function configure(array $config) {
     $facebookConfig = $config['korzilius_facebook'];
+    $this->appId = $facebookConfig['app_id'];
     $this->appSecret = $facebookConfig['app_secret'];
     $this->webhookVerifyToken = $facebookConfig['webhook_verify_token'];
     return $this;
+  }
+
+  public function getAppId() {
+    return $this->appId;
   }
 
   public function getAppSecret() {
@@ -153,9 +159,25 @@ class WebhookService implements EventManagerAwareInterface {
       $attachments = $data['message']['attachments'];
     }
 
+    // check if this message has been sent by the page
+    $isEcho = (isset($data['message']['is_echo']) &&
+      $data['message']['is_echo'] === true);
+
+    // ignore messages sent by this app
+    if (
+      $isEcho &&
+      isset($data['message']['app_id']) &&
+      (string)$data['message']['app_id'] === (string)$this->getAppId()
+    ) {
+      return;
+    }
+
+    trigger_error(json_encode($data));
+
     $this->getEventManager()->trigger('messageReceived', $this, [
-      'userId' => $data['sender']['id'],
-      'pageId' => $data['recipient']['id'],
+      'userId' => !$isEcho ? $data['sender']['id'] : $data['recipient']['id'],
+      'pageId' => !$isEcho ? $data['recipient']['id'] : $data['sender']['id'],
+      'isEcho' => $isEcho,
       'id' => $data['message']['mid'],
       'time' => $time,
       'text' => $data['message']['text'],

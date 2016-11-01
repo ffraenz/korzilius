@@ -53,17 +53,28 @@ class Module {
       ->setExternalId($event->getParam('id'))
       ->setType('facebook')
       ->setSendTime($event->getParam('time'))
-      ->setDeliveredTime(new DateTime())
-      ->setSenderClient($client)
       ->setText($event->getParam('text'));
+
+    if ($event->getParam('isEcho') === false) {
+      // message from client
+      $message
+        ->setSenderClient($client)
+        ->setDeliveredTime(new DateTime());
+    } else {
+      // message from page
+      $message
+        ->setReceiverClient($client);
+    }
 
     $messageService->send($message);
 
-    // echo message
-    $graph = $serviceManager->get(GraphService::class);
-    $text = $event->getParam('text');
-    $userId = $event->getParam('userId');
-    $graph->createMessage($userId, [ 'text' => $text ]);
+    if ($event->getParam('isEcho') === false) {
+      // echo message
+      $graph = $serviceManager->get(GraphService::class);
+      $text = $event->getParam('text');
+      $userId = $event->getParam('userId');
+      $graph->createMessage($userId, [ 'text' => $text ]);
+    }
 
     trigger_error(sprintf(
       '%s - Message recieved: %s',
