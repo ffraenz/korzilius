@@ -5,12 +5,14 @@ namespace KoBackbone\Factory\Service;
 use Zend\ServiceManager\Factory\FactoryInterface;
 use Interop\Container\ContainerInterface;
 
-class BackboneService implements FactoryInterface {
+use KoBackbone\Service\BackboneService;
+
+class JobService implements FactoryInterface {
 
   public function __invoke(
     ContainerInterface $container, $requestedName, array $options = null
   ) {
-    return (new \KoBackbone\Service\BackboneService())
-      ->configure($container->get('config'));
+    return (new \KoBackbone\Service\JobService())
+      ->setBackboneService($container->get(BackboneService::class));
   }
 }

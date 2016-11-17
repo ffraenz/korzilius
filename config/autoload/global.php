@@ -29,6 +29,7 @@ return [
   'korzilius_backbone' => [
     'endpoint' => getenv('KORZILIUS_BACKBONE_ENDPOINT'),
     'apikey' => getenv('KORZILIUS_BACKBONE_APIKEY'),
+    'job_access_token' => getenv('JOB_ACCESS_TOKEN'),
   ],
   'korzilius_facebook' => [
     'graph_api_endpoint' => 'https://graph.facebook.com/v2.8',

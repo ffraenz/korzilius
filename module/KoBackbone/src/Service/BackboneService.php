@@ -10,7 +10,6 @@ use Zend\Json\Json;
 class BackboneService {
 
   protected $httpClient;
-  protected $cacheAdapter;
 
   protected $endpoint;
   protected $apikey;
@@ -38,19 +37,6 @@ class BackboneService {
 
   protected function getApikey() {
     return $this->apikey;
-  }
-
-  public function hasCacheAdapter() {
-    return $this->cacheAdapter !== null;
-  }
-
-  public function getCacheAdapter() {
-    return $this->cacheAdapter;
-  }
-
-  public function setCacheAdapter(AbstractAdapter $cacheAdapter) {
-    $this->cacheAdapter = $cacheAdapter;
-    return $this;
   }
 
   public function requestResource(
@@ -81,35 +67,12 @@ class BackboneService {
       'User-Agent' => 'Korzilius/0.0.1',
     ]);
 
-    $data = null;
-    $cacheKey = null;
+    // retrieve response from backbone
+    $response = $this->getHttpClient()->send($request);
 
-    if ($this->hasCacheAdapter() && $method === Request::METHOD_GET) {
-      // compose cache key
-      $hash = hash('sha1', $request->toString());
-      $cacheKey = 'backbone' . $hash;
-
-      // check if cached response is available
-      if ($this->getCacheAdapter()->hasItem($cacheKey)) {
-        $data = $this->getCacheAdapter()->getItem($cacheKey);
-      }
-    }
-
-    if ($data === null) {
-      // retrieve response from backbone
-      $response = $this->getHttpClient()->send($request);
-
-      if ($response->isOk()) {
-        // decode json data
-        $json = $response->getBody();
-        $data = Json::decode($json, Json::TYPE_ARRAY);
-
-        // cache data
-        if ($this->hasCacheAdapter()) {
-          $this->getCacheAdapter()->setItem($cacheKey, $data);
-        }
-      }
-    }
+    // decode json data
+    $json = $response->getBody();
+    $data = Json::decode($json, Json::TYPE_ARRAY);
 
     return $data;
   }
