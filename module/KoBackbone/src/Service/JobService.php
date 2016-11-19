@@ -6,10 +6,12 @@ use DateTime;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
+use Zend\Cache\Storage\Adapter\AbstractAdapter;
 
 class JobService implements EventManagerAwareInterface {
 
   protected $events;
+  protected $persistentCacheAdapter;
   protected $backboneService;
 
   const PAGE_RESOURCE_COUNT = 50;
@@ -36,28 +38,75 @@ class JobService implements EventManagerAwareInterface {
     return $this;
   }
 
+  public function getPersistentCacheAdapter() {
+    return $this->persistentCacheAdapter;
+  }
+
+  public function setPersistentCacheAdapter(AbstractAdapter $cacheAdapter) {
+    $this->persistentCacheAdapter = $cacheAdapter;
+    return $this;
+  }
+
+  public function getLastDocumentUpdateTime() {
+    return $this->getPersistentCacheAdapter()
+      ->getItem('last-document-update-time');
+  }
+
+  public function setLastDocumentUpdateTime($time) {
+    $this->getPersistentCacheAdapter()
+      ->setItem('last-document-update-time', $time);
+    return $this;
+  }
+
+  public function getLastClientUpdateTime() {
+    return $this->getPersistentCacheAdapter()
+      ->getItem('last-client-update-time');
+  }
+
+  public function setLastClientUpdateTime($time) {
+    $this->getPersistentCacheAdapter()
+      ->setItem('last-client-update-time', $time);
+    return $this;
+  }
+
   public function updateDocuments($all = false) {
+    $updateTime = new DateTime();
     $parameters = [];
 
     if (!$all) {
-      // TODO: How to store the last update timestamp?
-      // $parameters['updated_since'] = null;
+      $lastUpdateTime = $this->getLastDocumentUpdateTime();
+      if ($lastUpdateTime !== null) {
+        $parameters['updated_since'] = $lastUpdateTime;
+      }
     }
 
-    $this->fetchResources(
+    $lastUpdateTime = $this->fetchResources(
       '/documents', $parameters, [$this, 'handleDocumentUpdated']);
+
+    // update last document update time
+    $this->setLastDocumentUpdateTime($lastUpdateTime);
+
+    return $this;
   }
 
   public function updateClients($all = false) {
+    $updateTime = new DateTime();
     $parameters = [];
 
     if (!$all) {
-      // TODO: How to store the last update timestamp?
-      // $parameters['updated_since'] = null;
+      $lastUpdateTime = $this->getLastClientUpdateTime();
+      if ($lastUpdateTime !== null) {
+        $parameters['updated_since'] = $lastUpdateTime;
+      }
     }
 
-    $this->fetchResources(
+    $lastUpdateTime = $this->fetchResources(
       '/clients', $parameters, [$this, 'handleClientUpdated']);
+
+    // update last client update time
+    $this->setLastClientUpdateTime($lastUpdateTime);
+
+    return $this;
   }
 
   protected function handleDocumentUpdated($document) {
@@ -78,11 +127,17 @@ class JobService implements EventManagerAwareInterface {
     $count = self::PAGE_RESOURCE_COUNT;
     $offset = 0;
 
+    // track last update time
+    $lastUpdateTime = 0;
+    if (isset($parameters['update_time'])) {
+      $lastUpdateTime = $parameters['update_time'];
+    }
+
     // do not fetch all resources at once, fetch them page by page
     do {
       // fetch page of resources
       $resources = $this->getBackboneService()->get(
-        '/documents',
+        $collectionPath,
         array_merge($parameters, [
           'offset' => $offset,
           'count' => $count,
@@ -92,6 +147,9 @@ class JobService implements EventManagerAwareInterface {
       // handle each updated resource
       foreach ($resources as $resource) {
         $handler($resource);
+
+        $lastUpdateTime =
+          max($lastUpdateTime, $resource['updateTime']);
       }
 
       // set offset for next request
@@ -106,5 +164,8 @@ class JobService implements EventManagerAwareInterface {
       ), E_USER_NOTICE);
 
     } while (count($resources) === $count);
+
+    // return last update time
+    return $lastUpdateTime;
   }
 }

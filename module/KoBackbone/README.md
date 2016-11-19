@@ -10,7 +10,7 @@ Documents are stored and managed using a third party Windows application called 
 
 #### GET /documents
 
-Gets documents matching the given filters. Documents are ordered by update time in descending order (last updated document appears first).
+Gets documents matching the given filters. Documents are ordered by update time in descending order (first updated document appears first).
 
 ##### Parameters
 
@@ -69,7 +69,7 @@ Clients are managed by a custom made Windows application and stored in a MS SQL 
 
 #### GET /clients
 
-Gets clients matching the given filters. Clients are ordered by update time in descending order (last updated client appears first).
+Gets clients matching the given filters. Clients are ordered by update time in descending order (first updated client appears first).
 
 ##### Parameters
 
@@ -90,6 +90,3 @@ Gets single client object by id or `null` if it could not be found.
 #### GET /clients/:id/contracts
 
 #### GET /contracts/:id
-
-
-

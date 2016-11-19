@@ -13,6 +13,8 @@ class JobService implements FactoryInterface {
     ContainerInterface $container, $requestedName, array $options = null
   ) {
     return (new \KoBackbone\Service\JobService())
-      ->setBackboneService($container->get(BackboneService::class));
+      ->setBackboneService($container->get(BackboneService::class))
+      ->setPersistentCacheAdapter(
+        $container->get('korzilius-backbone-persistent'));
   }
 }

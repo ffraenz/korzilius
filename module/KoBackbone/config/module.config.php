@@ -3,12 +3,17 @@
 namespace KoBackbone;
 
 use Zend\Router\Http\Literal;
+use Zend\Router\Http\Segment;
+use Zend\Cache\Service\StorageCacheAbstractServiceFactory;
 
 return [
   'service_manager' => [
     'factories' => [
       Service\BackboneService::class => Factory\Service\BackboneService::class,
       Service\JobService::class => Factory\Service\JobService::class,
+    ],
+    'abstract_factories' => [
+      StorageCacheAbstractServiceFactory::class,
     ],
   ],
   'controllers' => [
@@ -18,25 +23,28 @@ return [
   ],
   'router' => [
     'routes' => [
-      'backbone/jobs/update-documents' => [
-        'type' => Literal::class,
+      'backbone/jobs/update' => [
+        'type' => Segment::class,
         'options' => [
-          'route' => '/jobs/backbone/update-documents',
+          'route' => '/jobs/backbone/update[/:resource]',
           'defaults' => [
             'controller' => Controller\JobController::class,
-            'action' => 'update-documents',
+            'action' => 'update',
+            'resource' => null,
           ],
         ],
       ],
-      'backbone/jobs/update-clients' => [
-        'type' => Literal::class,
-        'options' => [
-          'route' => '/jobs/backbone/update-clients',
-          'defaults' => [
-            'controller' => Controller\JobController::class,
-            'action' => 'update-clients',
-          ],
-        ],
+    ],
+  ],
+  'caches' => [
+    'korzilius-backbone-persistent' => [
+      'adapter' => [
+        'name' => 'filesystem',
+      ],
+      'options' => [
+        'namespace' => 'backbone',
+        'cache_dir' => 'data/cache/korzilius-backbone',
+        'dir_level' => 0,
       ],
     ],
   ],
