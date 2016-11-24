@@ -109,6 +109,8 @@ abstract class AbstractEntityMapper implements AdapterAwareInterface {
       // update entity
       $this->getTableGateway()->update($data, [ 'id' => $entity->getId() ]);
     }
+    
+    return $this;
   }
 
   public function delete(Entity $entity) {

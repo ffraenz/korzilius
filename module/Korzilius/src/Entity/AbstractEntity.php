@@ -19,6 +19,8 @@ abstract class AbstractEntity {
     ],
   ];
 
+  protected $changedFields = [];
+
   public function __call($name, $args) {
     $getOrSet = substr($name, 0, 3);
 
@@ -80,6 +82,28 @@ abstract class AbstractEntity {
         $name));
     }
     return $this->setField($name, $value !== null ? intval($value) : null);
+  }
+
+  protected function setBooleanField($name, $value) {
+    $possibleBooleanValues = [
+      0, false, '0', 'false',
+      1, true, '1', 'true',
+      null
+    ];
+
+    if (!in_array($value, $possibleBooleanValues, true)) {
+      throw new Exception(sprintf(
+        '%s - Field "%s" expects a value of type boolean.',
+        __METHOD__,
+        $name));
+    }
+
+    if ($value !== null) {
+      // filter value
+      $value = in_array($value, [1, true, '1', 'true'], true);
+    }
+
+    return $this->setField($name, $value);
   }
 
   protected function setStringField($name, $value) {

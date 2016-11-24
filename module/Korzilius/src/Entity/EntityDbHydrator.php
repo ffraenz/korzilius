@@ -33,7 +33,7 @@ class EntityDbHydrator implements HydratorInterface {
     return $data;
   }
 
-  public function extractType($type, $value) {
+  protected function extractType($type, $value) {
     if ($value === null) {
       return null;
     }
@@ -45,11 +45,15 @@ class EntityDbHydrator implements HydratorInterface {
     return $this->{$method}($value);
   }
 
-  public function extractDateTime($dateTime) {
+  protected function extractDateTime($dateTime) {
     return $dateTime->format('Y-m-d H:i:s');
   }
 
-  public function extractKeyValueArray($array) {
+  protected function extractBoolean($boolean) {
+    return $boolean ? 1 : 0;
+  }
+
+  protected function extractKeyValueArray($array) {
     return Json::encode($array);
   }
 
@@ -66,7 +70,7 @@ class EntityDbHydrator implements HydratorInterface {
     return $entity;
   }
 
-  public function hydrateType($type, $value) {
+  protected function hydrateType($type, $value) {
     if ($value === null) {
       return null;
     }
@@ -78,11 +82,15 @@ class EntityDbHydrator implements HydratorInterface {
     return $this->{$method}($value);
   }
 
-  public function hydrateDateTime($value) {
+  protected function hydrateDateTime($value) {
     return new DateTime($value);
   }
 
-  public function hydrateKeyValueArray($value) {
+  protected function hydrateBoolean($value) {
+    return $value;
+  }
+
+  protected function hydrateKeyValueArray($value) {
     return Json::decode($value, Json::TYPE_ARRAY);
   }
 }

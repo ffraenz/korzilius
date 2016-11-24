@@ -80,8 +80,13 @@ class JobService implements EventManagerAwareInterface {
       }
     }
 
-    $lastUpdateTime = $this->fetchResources(
-      '/documents', $parameters, [$this, 'handleDocumentUpdated']);
+    $lastUpdateTime = $this->fetchResources('/documents', $parameters,
+      function($document) use ($all) {
+        $this->getEventManager()->trigger('documentUpdated', $this, [
+          'document' => $document,
+          'flush' => $all,
+        ]);
+      });
 
     // update last document update time
     $this->setLastDocumentUpdateTime($lastUpdateTime);
@@ -100,25 +105,18 @@ class JobService implements EventManagerAwareInterface {
       }
     }
 
-    $lastUpdateTime = $this->fetchResources(
-      '/clients', $parameters, [$this, 'handleClientUpdated']);
+    $lastUpdateTime = $this->fetchResources('/clients', $parameters,
+      function($client) use ($all) {
+        $this->getEventManager()->trigger('clientUpdated', $this, [
+          'client' => $client,
+          'flush' => $all,
+        ]);
+      });
 
     // update last client update time
     $this->setLastClientUpdateTime($lastUpdateTime);
 
     return $this;
-  }
-
-  protected function handleDocumentUpdated($document) {
-    $this->getEventManager()->trigger('documentUpdated', $this, [
-      'document' => $document,
-    ]);
-  }
-
-  protected function handleClientUpdated($client) {
-    $this->getEventManager()->trigger('clientUpdated', $this, [
-      'client' => $client,
-    ]);
   }
 
   protected function fetchResources(

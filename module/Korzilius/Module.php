@@ -2,13 +2,10 @@
 
 namespace Korzilius;
 
-use DateTime;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\Event;
 
-use KoFacebook\Service\GraphService;
-use Korzilius\Service\MessageService;
-use Korzilius\Entity\Message;
+use Korzilius\Entity\Client;
 
 class Module {
 
@@ -32,54 +29,39 @@ class Module {
     $this->application = $event->getApplication();
     $sharedEvents = $this->application->getEventManager()->getSharedManager();
 
+    // listen for client resource updates
     $sharedEvents->attach(
-      'KoFacebook\Service\WebhookService',
-      'messageReceived',
-      [$this, 'onFacebookMessageReceived']);
+      'KoBackbone\Service\JobService',
+      'clientUpdated',
+      [$this, 'onBackboneClientUpdated']);
   }
 
-  public function onFacebookMessageReceived(Event $event) {
-    // pull services
+  public function onBackboneClientUpdated(Event $event) {
+    // get services
     $serviceManager = $this->application->getServiceManager();
-    $messageService = $serviceManager->get(MessageService::class);
+    $clientMapper = $serviceManager->get(Mapper\ClientMapper::class);
+    $hydrator = $serviceManager->get(Entity\EntityArrayHydrator::class);
 
-    // match this facebook user id to a client
-    // $client = $clientMapper->fetchSingleWithFacebookUserId(
-    //   $event->getParam('userId'));
-    $client = null;
+    $data = $event->getParam('client');
 
-    // compose facebook message
-    $message = (new Message())
-      ->setExternalId($event->getParam('id'))
-      ->setType('facebook')
-      ->setSendTime($event->getParam('time'))
-      ->setText($event->getParam('text'));
+    // check if client has already been saved
+    $client = $clientMapper->fetchSingleById($data['id']);
+    $exists = ($client !== null);
 
-    if ($event->getParam('isEcho') === false) {
-      // message from client
-      $message
-        ->setSenderClient($client)
-        ->setDeliveredTime(new DateTime());
-    } else {
-      // message from page
-      $message
-        ->setReceiverClient($client);
+    if (!$exists) {
+      // create new client instance
+      $client = new Client();
+      $client->setId($data['id']);
     }
 
-    $messageService->send($message);
+    // rename update time to sync time
+    $data['syncTime'] = $data['updateTime'];
+    unset($data['updateTime']);
 
-    if ($event->getParam('isEcho') === false) {
-      // echo message
-      $graph = $serviceManager->get(GraphService::class);
-      $text = $event->getParam('text');
-      $userId = $event->getParam('userId');
-      $graph->createMessage($userId, [ 'text' => $text ]);
-    }
+    // update client entity
+    $hydrator->hydrate($data, $client);
 
-    trigger_error(sprintf(
-      '%s - Message recieved: %s',
-      __METHOD__,
-      $event->getParam('text')
-    ), E_USER_NOTICE);
+    // save client
+    $clientMapper->save($client, $exists);
   }
 }

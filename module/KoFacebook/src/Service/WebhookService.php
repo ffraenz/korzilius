@@ -172,8 +172,6 @@ class WebhookService implements EventManagerAwareInterface {
       return;
     }
 
-    trigger_error(json_encode($data));
-
     $this->getEventManager()->trigger('messageReceived', $this, [
       'userId' => !$isEcho ? $data['sender']['id'] : $data['recipient']['id'],
       'pageId' => !$isEcho ? $data['recipient']['id'] : $data['sender']['id'],
