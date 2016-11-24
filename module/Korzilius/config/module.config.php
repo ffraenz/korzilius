@@ -20,6 +20,11 @@ return [
       Controller\IndexController::class => Factory\Controller\IndexController::class,
     ],
   ],
+  'view_helpers' => [
+    'invokables' => [
+      'component' => View\Helper\Component::class,
+    ],
+  ],
   'router' => [
     'routes' => [
       'home' => [

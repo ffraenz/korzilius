@@ -4,21 +4,36 @@
   <head>
     <meta charset="utf-8">
 
-    <?= $this->headTitle('Korzilius')
-      ->setSeparator(' - ')
-      ->setAutoEscape(false)
-    ?>
+<?php
+echo $this->headTitle('Korzilius')
+  ->setSeparator(' - ')
+  ->setAutoEscape(false)
+  ->toString(4);
+?>
 
-    <?= $this->headLink() ?>
+<?php
+echo $this->headLink()
+  ->prependStylesheet($this->basePath('assets/styles/style.min.css'))
+  ->toString(4);
+?>
 
-    <?= $this->headScript() ?>
+<?php
+echo $this->headScript()
+  ->toString(4);
+?>
+
 
   </head>
   <body>
 
     <?= $this->content ?>
 
-    <?= $this->inlineScript() ?>
+<?php
+echo $this->inlineScript()
+  ->prependFile($this->basePath('assets/scripts/script.js'))
+  ->toString(4);
+?>
+
 
   </body>
 </html>

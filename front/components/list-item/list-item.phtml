@@ -1,0 +1,44 @@
+<?php
+
+// add icon modifier if icon is set
+if (isset($icon)) {
+  $classes .= ' list-item--icon';
+}
+
+?>
+
+<li class="<?= $classes ?>">
+
+  <?php if (isset($href)) { ?>
+  <a class="list-item__link" href="<?= $this->escapeUrl($href) ?>">
+  <?php } ?>
+
+  <div class="list-item__content">
+
+    <?php if (array_search('section', $modifiers) === false) { ?>
+
+    <?php if (isset($icon)) { ?>
+    <span class="list-item__icon">
+      <span class="icon icon-<?= $icon ?>"></span>
+    </span>
+    <?php } ?>
+
+    <?php if (isset($title)) { ?>
+    <strong class="list-item__title"><?= $this->escapeHtml($title) ?></strong>
+    <?php } ?>
+
+    <?php if (isset($text)) { ?>
+    <span class="list-item__text"><?= $this->escapeHtml($text) ?></span>
+    <?php } ?>
+
+    <?php } else { ?>
+    <div class="list-item__section"><?= $this->escapeHtml($title) ?></div>
+    <?php } ?>
+
+  </div>
+
+  <?php if (isset($href)) { ?>
+  </a>
+  <?php } ?>
+
+</li>

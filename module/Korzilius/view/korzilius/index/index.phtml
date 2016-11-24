@@ -1,2 +1,136 @@
 
-Hello World.
+<div class="app-wrapper">
+
+  <div class="app-wrapper__split-view split-view">
+    <div class="split-view__aside">
+      <header class="split-view__header app-header">
+        <h1 class="app-header__brand">Korzilius</h1>
+      </header>
+      <div class="split-view__master">
+
+<?php
+echo $this->component('list', [
+  'entries' => [
+    [
+      'modifiers' => ['active'],
+      'title' => 'Wisteria Ravenclaw',
+      'text' => 'Diekirch',
+      'href' => '#',
+    ],
+    [
+      'title' => 'Eleanor Fant',
+      'text' => 'Luxembourg',
+      'href' => '#',
+    ],
+    [
+      'title' => 'Hans Down',
+      'text' => 'Trier',
+      'href' => '#',
+    ],
+    [
+      'title' => 'Indigo Violet',
+      'text' => 'Wasserbillig',
+      'href' => '#',
+    ],
+    [
+      'title' => 'Parsley Montana',
+      'text' => 'Wiltz',
+      'href' => '#',
+    ],
+  ],
+])
+  ->toString(8);
+?>
+
+      </div>
+    </div>
+    <div class="split-view__detail">
+
+      <div class="split-view split-view--reversed split-view--secondary">
+        <div class="split-view__aside">
+          <header class="split-view__header">
+
+            <h2 style="padding: 30px; margin: 0; font-size: 23px; font-weight: normal;">Wisteria Ravenclaw</h2>
+
+<?php
+echo $this->component('list', [
+  'modifiers' => ['compact'],
+  'entries' => [
+    [
+      'modifiers' => ['active'],
+      'text' => 'Noriichten',
+      'href' => '#',
+    ],
+    [
+      'text' => 'Ticketen',
+      'href' => '#',
+    ],
+    [
+      'text' => 'Formularer',
+      'href' => '#',
+    ],
+  ],
+])
+  ->toString(12);
+?>
+
+          </header>
+          <div class="split-view__master">
+
+<?php
+echo $this->component('list', [
+  'modifiers' => ['compact'],
+  'entries' => [
+    [
+      'modifiers' => ['section'],
+      'title' => 'Privat',
+    ],
+    [
+      'text' => 'Warschauerstr, 7' . PHP_EOL . 'L-1337 Mersch',
+      'icon' => 'home',
+      'href' => '#',
+    ],
+    [
+      'text' => '80 12 34',
+      'icon' => 'phone',
+      'href' => '#',
+    ],
+    [
+      'text' => '621 234 567',
+      'icon' => 'phone',
+      'href' => '#',
+    ],
+    [
+      'text' => 'wisteria@example.com',
+      'icon' => 'envelope',
+      'href' => '#',
+    ],
+    [
+      'text' => 'Wisteria Ravenclaw',
+      'icon' => 'facebook-square',
+      'href' => '#',
+    ],
+    [
+      'modifiers' => ['section'],
+      'title' => 'Professionel',
+    ],
+    [
+      'text' => 'wr@example.com',
+      'icon' => 'envelope',
+      'href' => '#',
+    ],
+  ],
+])
+  ->toString(12);
+?>
+
+          </div>
+        </div>
+        <div class="split-view__detail">
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

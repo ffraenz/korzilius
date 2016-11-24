@@ -1,0 +1,20 @@
+
+<ul class="<?= $classes ?>">
+
+<?php
+
+if (isset($this->entries)) {
+
+  // render each item
+  foreach ($this->entries as $entry) {
+    echo $this->component('list-item', $entry)->toString(2);
+  }
+
+} else {
+  // echo content
+  echo $this->content;
+}
+
+?>
+
+</ul>

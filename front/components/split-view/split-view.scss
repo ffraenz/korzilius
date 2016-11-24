@@ -1,0 +1,47 @@
+
+.split-view {
+  $block: &;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    flex: 0 0 25%;
+    border-color: $color-line-primary;
+    border-width: 1px;
+    border-right-style: solid;
+  }
+
+  &__header {
+    flex-shrink: 0;
+  }
+
+  &__master {
+    flex-grow: 1;
+    overflow: auto;
+  }
+
+  &__detail {
+    flex-grow: 1;
+  }
+
+  &--secondary {
+
+    #{$block}__aside {
+      flex: 0 0 33.333%;
+      border-color: $color-line-secondary;
+    }
+  }
+
+  &--reversed {
+    flex-direction: row-reverse;
+
+    #{$block}__aside {
+      border-right-style: none;
+      border-left-style: solid;
+    }
+  }
+}

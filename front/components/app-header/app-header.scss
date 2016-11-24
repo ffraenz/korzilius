@@ -1,0 +1,12 @@
+
+.app-header {
+  padding: 30px;
+
+  &__brand {
+    font-size: 0;
+    color: transparent;
+    background: $color-ci-gray;
+    width: 25px;
+    height: 25px;
+  }
+}
