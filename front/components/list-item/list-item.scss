@@ -24,9 +24,10 @@ $list-item-compact-vertical-padding: 10px !default;
   &__icon {
     display: block;
     float: left;
-    width: 28px;
+    width: 16px;
     margin-left: -28px;
     font-size: 1.2em;
+    text-align: center;
     line-height: 1.3;
   }
 

@@ -5,11 +5,12 @@ import gulp from 'gulp'
 import sourcemaps from 'gulp-sourcemaps'
 import rollup from 'rollup-stream'
 import babel from 'rollup-plugin-babel'
+import nodeResolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
 import source from 'vinyl-source-stream'
 import buffer from 'vinyl-buffer'
 import rename from 'gulp-rename'
 import uglify from 'gulp-uglify'
-import standard from 'gulp-standard'
 import mocha from 'gulp-mocha'
 import sass from 'gulp-ruby-sass'
 import autoprefixer from 'gulp-autoprefixer'
@@ -28,26 +29,29 @@ let paths = {
   }
 }
 
-gulp.task('lint-js', () => {
-  return gulp.src(paths.src + '/**/*.js')
-    .pipe(standard())
-    .pipe(standard.reporter('default', {
-      breakOnError: true,
-      quiet: true
-    }))
-})
-
 var rollupCache
 
-gulp.task('js', ['lint-js'], () => {
+gulp.task('js', () => {
 
   // run module builder and return a stream
   const stream = rollup({
     entry: paths.js.src + '/main.js',
-    external: [
-    ],
+    external: ['react', 'react-dom'],
+    globals: {
+      'react': 'React',
+      'react-dom': 'ReactDOM'
+    },
     plugins: [
-      babel()
+      babel({
+        exclude: ['node_modules/**']
+      }),
+      nodeResolve({
+        jsnext: true,
+        skip: ['react', 'react-dom']
+      }),
+      commonjs({
+        include: 'node_modules/**'
+      })
     ],
     format: 'umd',
     moduleId: meta.name,
