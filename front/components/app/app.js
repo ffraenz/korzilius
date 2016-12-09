@@ -14,6 +14,7 @@ export default class App extends React.Component {
     // initial state
     this.state = {
       clients: [],
+      clientMessages: {},
       selectedClientId: null,
     }
 
@@ -48,18 +49,68 @@ export default class App extends React.Component {
     // sort clients by update time
     this.state.clients.sort((a, b) => a.updateTime > b.updateTime)
 
-    // replace empty selection by first client
-    if (this.state.selectedClientId === null) {
-      this.state.selectedClientId = this.state.clients[0].id
-    }
-
     // set state
     this.setState(this.state)
+
+    // replace empty selection by first client
+    if (this.state.selectedClientId === null) {
+      this.selectClient(this.state.clients[0])
+    }
   }
 
-  selectClient (clientId) {
-    this.state.selectedClientId = clientId
+  integrateMessages (messages) {
+    messages.forEach(message => {
+      // match client to message
+      let clientId = message.senderClientId || message.receiverClientId
+
+      if (clientId) {
+        if (this.state.clientMessages[clientId].length === 0) {
+          this.state.clientMessages[clientId].push(message)
+        } else {
+          let clientMessages = this.state.clientMessages[clientId]
+          let existingMessage = clientMessages.find(m => m.id === message.id)
+
+          if (existingMessage) {
+            // replace existing message if newer
+            if (message.updateTime > existingMessage.updateTime) {
+              let index = clientMessages.indexOf(existingMessage)
+              clientMessages.splice(index, 1, message)
+            }
+          } else {
+            let oldestMessage = clientMessages[clientMessages.length - 1]
+            if (message.sendTime < oldestMessage.sendTime) {
+              // append to end
+              clientMessages.push(message)
+            } else {
+              // integrate message between others
+              let index = -1
+              while (
+                ++index < clientMessages.length &&
+                message.sendTime > clientMessages[index].sendTime
+              );
+              clientMessages.splice(index, 0, message)
+            }
+          }
+        }
+      }
+
+      // set state
+      this.setState(this.state)
+    });
+  }
+
+  selectClient (client) {
+    this.state.selectedClientId = client.id
     this.setState(this.state)
+
+    if (this.state.clientMessages[client.id] === undefined) {
+      // request messages for this client for the first time
+      this.state.clientMessages[client.id] = []
+      request(`/api/clients/${client.id}/messages`).then(response => {
+        let messages = response.data
+        this.integrateMessages(messages)
+      })
+    }
   }
 
   getSelectedClient () {
@@ -67,6 +118,14 @@ export default class App extends React.Component {
       return this.findClient(this.state.selectedClientId)
     }
     return null
+  }
+
+  getMessagesForClient (client) {
+    let messages = this.state.clientMessages[client.id]
+    if (messages !== undefined) {
+      return messages
+    }
+    return []
   }
 
   render () {
@@ -81,11 +140,17 @@ export default class App extends React.Component {
         title: title,
         text: detail,
         modifiers: active ? ['active'] : [],
-        onClick: evt => this.selectClient(client.id),
+        onClick: evt => this.selectClient(client),
       }
     })
 
+    let clientView = null
     let selectedClient = this.getSelectedClient()
+
+    if (selectedClient) {
+      let messages = this.getMessagesForClient(selectedClient)
+      clientView = <ClientView client={selectedClient} messages={messages} />
+    }
 
     return (
       <div className="app">
@@ -99,7 +164,7 @@ export default class App extends React.Component {
             </div>
           </div>
           <div className="split-view__detail">
-            {selectedClient && <ClientView client={selectedClient} />}
+            {clientView}
           </div>
         </div>
       </div>

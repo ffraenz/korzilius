@@ -6,14 +6,25 @@ use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Hydrator\HydratorInterface;
 
+use Korzilius\Mapper\MessageMapper;
 use Korzilius\Mapper\ClientMapper;
 
-class ClientResourceController extends AbstractRestfulController {
+class MessageResourceController extends AbstractRestfulController {
 
+  protected $messageMapper;
   protected $clientMapper;
   protected $hydrator;
 
-  protected $identifierName = 'client_id';
+  protected $identifierName = 'message_id';
+
+  public function getMessageMapper() {
+    return $this->messageMapper;
+  }
+
+  public function setMessageMapper(MessageMapper $messageMapper) {
+    $this->messageMapper = $messageMapper;
+    return $this;
+  }
 
   public function getClientMapper() {
     return $this->clientMapper;
@@ -34,25 +45,20 @@ class ClientResourceController extends AbstractRestfulController {
   }
 
   public function getList() {
-    $exampleIds = [100660, 4, 74, 257, 345, 559];
-    $clients = $this->getClientMapper()->fetchAllByIds($exampleIds);
+    $clientId = $this->params()->fromRoute('client_id');
 
-    $data = array_map(function($client) {
-      return $this->getHydrator()->extract($client);
-    }, $clients);
-
-    return new JsonModel($data);
-  }
-
-  public function get($id) {
-    $client = $this->getClientMapper()->fetchSingleById($id);
-
+    $client = $this->getClientMapper()->fetchSingleById($clientId);
     if ($client === null) {
       $this->getResponse()->setStatusCode(404);
       return new JsonModel();
     }
 
-    $data = $this->getHydrator()->extract($client);
+    $messages = $this->getMessageMapper()->fetchAllByClient($client);
+
+    $data = array_map(function($message) {
+      return $this->getHydrator()->extract($message);
+    }, $messages);
+
     return new JsonModel($data);
   }
 }

@@ -160,12 +160,12 @@ class WebhookService implements EventManagerAwareInterface {
     }
 
     // check if this message has been sent by the page
-    $isEcho = (isset($data['message']['is_echo']) &&
+    $sentByPage = (isset($data['message']['is_echo']) &&
       $data['message']['is_echo'] === true);
 
     // ignore messages sent by this app
     if (
-      $isEcho &&
+      $sentByPage &&
       isset($data['message']['app_id']) &&
       (string)$data['message']['app_id'] === (string)$this->getAppId()
     ) {
@@ -173,9 +173,9 @@ class WebhookService implements EventManagerAwareInterface {
     }
 
     $this->getEventManager()->trigger('messageReceived', $this, [
-      'userId' => !$isEcho ? $data['sender']['id'] : $data['recipient']['id'],
-      'pageId' => !$isEcho ? $data['recipient']['id'] : $data['sender']['id'],
-      'isEcho' => $isEcho,
+      'userId' => !$sentByPage ? $data['sender']['id'] : $data['recipient']['id'],
+      'pageId' => !$sentByPage ? $data['recipient']['id'] : $data['sender']['id'],
+      'sentByPage' => $sentByPage,
       'id' => $data['message']['mid'],
       'time' => $time,
       'text' => $data['message']['text'],

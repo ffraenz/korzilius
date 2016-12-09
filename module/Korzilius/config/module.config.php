@@ -23,6 +23,7 @@ return [
     'factories' => [
       Controller\IndexController::class => Factory\Controller\IndexController::class,
       Controller\ClientResourceController::class => Factory\Controller\ClientResourceController::class,
+      Controller\MessageResourceController::class => Factory\Controller\MessageResourceController::class,
     ],
   ],
   'view_helpers' => [
@@ -44,20 +45,31 @@ return [
       ],
       'api' => [
         'type' => Literal::class,
-        'may_terminate' => false,
         'options' => [
           'route' => '/api',
         ],
         'child_routes' => [
           'clients' => [
             'type' => Segment::class,
+            'may_terminate' => true,
             'options' => [
-              'route' => '/clients[/:id]',
+              'route' => '/clients[/:client_id]',
               'constraints' => [
-                'id' => '[0-9]+',
+                'client_id' => '[0-9]+',
               ],
               'defaults' => [
                 'controller' => Controller\ClientResourceController::class,
+              ],
+            ],
+            'child_routes' => [
+              'messages' => [
+                'type' => Segment::class,
+                'options' => [
+                  'route' => '/messages[/]',
+                  'defaults' => [
+                    'controller' => Controller\MessageResourceController::class,
+                  ],
+                ],
               ],
             ],
           ],

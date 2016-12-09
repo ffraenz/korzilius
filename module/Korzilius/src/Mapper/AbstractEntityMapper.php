@@ -8,6 +8,7 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Predicate;
 
 use Korzilius\Entity\AbstractEntity as Entity;
 use Korzilius\Entity\EntityDbHydrator;
@@ -74,6 +75,11 @@ abstract class AbstractEntityMapper implements AdapterAwareInterface {
   public function fetchAllByIds(array $ids) {
     $select = $this->getSql()->select();
     $select->where->in('id', $ids);
+    $select->order(
+      new Predicate\Expression(sprintf(
+        'FIELD(id, \'%s\')',
+        implode('\', \'', $ids)))
+    );
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }
 
@@ -109,7 +115,7 @@ abstract class AbstractEntityMapper implements AdapterAwareInterface {
       // update entity
       $this->getTableGateway()->update($data, [ 'id' => $entity->getId() ]);
     }
-    
+
     return $this;
   }
 

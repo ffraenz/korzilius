@@ -3,6 +3,7 @@ import React from 'react'
 
 import List from '../list/list'
 import ListItem from '../list-item/list-item'
+import Chat from '../chat/chat'
 
 const ClientView = props => {
   let client = props.client
@@ -30,7 +31,7 @@ const ClientView = props => {
           </div>
         </div>
         <div className="split-view__detail">
-          
+          <Chat messages={props.messages} />
         </div>
       </div>
     </div>

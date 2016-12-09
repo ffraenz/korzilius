@@ -1,0 +1,38 @@
+
+$message-thread-avatar-size: 42px;
+
+.message-thread {
+  $block: &;
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 0 8px;
+  margin-bottom: 13px;
+
+  &__source {
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 0 6px;
+  }
+
+  &__avatar {
+    display: block;
+    width: $message-thread-avatar-size;
+    height: $message-thread-avatar-size;
+    border-radius: 50%;
+    background: $color-fill-message;
+  }
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  &--side-other {
+    flex-direction: row;
+
+    #{$block}__messages {
+      align-items: flex-start;
+    }
+  }
+}

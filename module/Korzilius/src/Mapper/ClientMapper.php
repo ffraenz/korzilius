@@ -23,6 +23,12 @@ class ClientMapper extends AbstractEntityMapper {
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }
 
+  public function fetchSingleByFacebookUserId($facebookUserId) {
+    $select = $this->getSql()->select();
+    $select->where->equalTo('facebook_user_id', $facebookUserId);
+    return $this->populate($this->selectWith($select)->current() ?: null);
+  }
+
   public function save(Entity $entity, $exists = false) {
     // check if entity has an id
     if ($entity->getId() === null) {

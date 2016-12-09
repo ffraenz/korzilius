@@ -1,5 +1,6 @@
 
 $color-ci-gray: #67757D;
+$color-ci-blue-light: #CDE9F0;
 
 $color-fill-gray-light: #f5f5f5;
 
@@ -13,3 +14,5 @@ $color-line-secondary: rgba(#000000, 0.1);
 
 // fill
 $color-fill-selected: $color-fill-gray-light;
+$color-fill-message: $color-fill-gray-light;
+$color-fill-message-other: $color-ci-blue-light;
