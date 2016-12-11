@@ -5,6 +5,8 @@ import request from '../../scripts/lib/request'
 import List from '../list/list'
 import AppHeader from '../app-header/app-header'
 import ClientView from '../client-view/client-view'
+import SearchField from '../search-field/search-field'
+import Scrollable from '../scrollable/scrollable'
 
 export default class App extends React.Component {
 
@@ -158,9 +160,12 @@ export default class App extends React.Component {
           <div className="split-view__aside">
             <header className="split-view__header">
               <AppHeader />
+              <SearchField />
             </header>
             <div className="split-view__master">
-              <List items={clientItems} />
+              <Scrollable>
+                <List items={clientItems} />
+              </Scrollable>
             </div>
           </div>
           <div className="split-view__detail">

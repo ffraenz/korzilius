@@ -18,38 +18,29 @@ class ClientMapper extends AbstractEntityMapper {
     return new Client();
   }
 
+  protected function joinActiveTime($select) {
+    // retrieve active time field using a left join on the messages table
+    return $select->join([
+      'activeTimeJoin' => (new Sql\Select($this->messageTable))
+          ->columns([
+            'client_id' => new Sql\Expression(
+              'COALESCE(sender_client_id, receiver_client_id)'),
+            'active_time' => new Sql\Expression('MAX(send_time)'),
+          ])
+          ->group('client_id')
+          ->having('client_id IS NOT NULL')
+      ],
+      'client_id = id',
+      ['active_time'],
+      Sql\Select::JOIN_LEFT
+    );
+  }
+
   public function fetchLatest($count = 20, $offset = 0) {
-    $select = $this->getSql()->select()
-      ->join([
-        $this->messageTable =>
-          (new Sql\Select($this->messageTable))
-            ->columns([
-              'sender_client_id',
-              'receiver_client_id',
-              'active_time' => new Sql\Expression('MAX(send_time)'),
-            ])
-            ->where([
-              'sender_client_id IS NOT NULL',
-              'receiver_client_id IS NOT NULL',
-            ], Sql\Predicate\PredicateSet::OP_OR)
-            ->group(['sender_client_id', 'receiver_client_id'])
-        ],
-        sprintf(
-          '%2$s.sender_client_id = %1$s.id OR ' .
-          '%2$s.receiver_client_id = %1$s.id',
-          $this->table,
-          $this->messageTable),
-        Sql\Select::SQL_STAR,
-        Sql\Select::JOIN_LEFT
-      )
+    $select = $this->getSql()->select();
+    $this->joinActiveTime($select);
 
-      ->where([
-        'id' => [
-          new Sql\Expression('`sender_client_id`'),
-          new Sql\Expression('`receiver_client_id`'),
-        ]
-      ])
-
+    $select
       ->order('active_time DESC')
       ->order('update_time DESC')
       ->limit($count)

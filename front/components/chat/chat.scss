@@ -4,14 +4,12 @@
   flex-direction: column;
   height: 100%;
 
-  &__scrollable {
-    display: flex;
-    flex-direction: column-reverse;
+  &__content {
+    position: relative;
     flex-grow: 1;
-    overflow: auto;
   }
 
-  &__content {
+  &__tape {
     padding: 30px 0;
   }
 
@@ -19,5 +17,13 @@
     flex-shrink: 0;
     height: 100px;
     border-top: 1px solid $color-line-secondary;
+  }
+
+  &__section {
+    padding: 13px 0 26px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: $color-text-detail;
   }
 }

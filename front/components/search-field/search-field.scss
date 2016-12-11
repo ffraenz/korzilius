@@ -1,0 +1,14 @@
+
+$search-field-horizontal-padding: 28px !default;
+
+.search-field {
+
+  &__input {
+    border: none;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 $search-field-horizontal-padding;
+    color: $color-text;
+  }
+}

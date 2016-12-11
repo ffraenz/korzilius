@@ -4,6 +4,7 @@ import React from 'react'
 import List from '../list/list'
 import ListItem from '../list-item/list-item'
 import Chat from '../chat/chat'
+import Scrollable from '../scrollable/scrollable'
 
 const ClientView = props => {
   let client = props.client
@@ -27,7 +28,9 @@ const ClientView = props => {
             </List>
           </header>
           <div className="split-view__master">
-            <List modifiers={['compact']} items={detailItems} />
+            <Scrollable>
+              <List modifiers={['compact']} items={detailItems} />
+            </Scrollable>
           </div>
         </div>
         <div className="split-view__detail">

@@ -1,0 +1,53 @@
+
+.scrollable {
+  $block: &;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+
+  &:before {
+    // shadow hint
+    content: '';
+    display: block;
+    position: absolute;
+    z-index: 1;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    box-shadow: 0 0 7px rgba(#000000, 0.15);
+    opacity: 0.0;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+  }
+
+  &__scroll {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
+  }
+
+  &--flow-up {
+
+    &:before {
+      top: auto;
+      bottom: -10px;
+    }
+
+    #{$block}__scroll {
+      flex-direction: column-reverse;
+    }
+  }
+
+  &--scrolling {
+
+    &:before {
+      opacity: 1.0;
+    }
+  }
+}
