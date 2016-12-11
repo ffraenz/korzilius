@@ -22,12 +22,18 @@ class EntityDbHydrator implements HydratorInterface {
     $fields = $entity->getFields();
     $data = [];
     foreach ($fields as $name => $field) {
-      $fieldType = $field['type'];
-      if ($fieldType !== 'entity') {
-        $dbName = self::getUnderscoreNamingStrategy()->extract($name);
-        $value = $entity->{'get' . ucfirst($name)}();
-        $dbValue = $this->extractType($fieldType, $value);
-        $data[$dbName] = $dbValue;
+      // respect ignore extract attribute
+      if (
+        !isset($field['ignoreExtract']) ||
+        array_search(__CLASS__, $field['ignoreExtract']) === false
+      ) {
+        $fieldType = $field['type'];
+        if ($fieldType !== 'entity') {
+          $dbName = self::getUnderscoreNamingStrategy()->extract($name);
+          $value = $entity->{'get' . ucfirst($name)}();
+          $dbValue = $this->extractType($fieldType, $value);
+          $data[$dbName] = $dbValue;
+        }
       }
     }
     return $data;
@@ -60,11 +66,17 @@ class EntityDbHydrator implements HydratorInterface {
   public function hydrate(array $data, $entity) {
     $fields = $entity->getFields();
     foreach ($fields as $name => $field) {
-      $dbName = self::getUnderscoreNamingStrategy()->extract($name);
-      if (isset($data[$dbName])) {
-        $value = $this->hydrateType($field['type'], $data[$dbName]);
-        $method = 'set' . ucfirst($name);
-        $entity->{$method}($value);
+      // respect ignore hydrate attribute
+      if (
+        !isset($field['ignoreHydrate']) ||
+        array_search(__CLASS__, $field['ignoreHydrate']) === false
+      ) {
+        $dbName = self::getUnderscoreNamingStrategy()->extract($name);
+        if (isset($data[$dbName])) {
+          $value = $this->hydrateType($field['type'], $data[$dbName]);
+          $method = 'set' . ucfirst($name);
+          $entity->{$method}($value);
+        }
       }
     }
     return $entity;

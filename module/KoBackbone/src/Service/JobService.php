@@ -153,6 +153,10 @@ class JobService implements EventManagerAwareInterface {
       // set offset for next request
       $offset += $count;
 
+      /*if ($offset > 200) {
+        break;
+      }*/
+
       // log
       trigger_error(sprintf(
         '%s - Fetching resource updates for %s (%d)',

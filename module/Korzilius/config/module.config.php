@@ -12,6 +12,7 @@ return [
       Service\MessageService::class => Factory\Service\MessageService::class,
       Mapper\MessageMapper::class => InvokableFactory::class,
       Mapper\ClientMapper::class => InvokableFactory::class,
+      Mapper\UserMapper::class => InvokableFactory::class,
       Entity\EntityArrayHydrator::class => InvokableFactory::class,
       Entity\EntityDbHydrator::class => InvokableFactory::class,
     ],

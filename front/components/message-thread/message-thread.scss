@@ -4,9 +4,9 @@ $message-thread-avatar-size: 42px;
 .message-thread {
   $block: &;
   display: flex;
+  flex-shrink: 0;
   flex-direction: row-reverse;
-  padding: 0 8px;
-  margin-bottom: 13px;
+  padding: 0 8px 13px;
 
   &__source {
     display: flex;
@@ -19,13 +19,14 @@ $message-thread-avatar-size: 42px;
     width: $message-thread-avatar-size;
     height: $message-thread-avatar-size;
     border-radius: 50%;
-    background: $color-fill-message;
+    background: $color-fill-gray-light;
   }
 
   &__messages {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    max-width: 65%;
   }
 
   &--side-other {

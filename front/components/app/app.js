@@ -47,7 +47,7 @@ export default class App extends React.Component {
     })
 
     // sort clients by update time
-    this.state.clients.sort((a, b) => a.updateTime > b.updateTime)
+    this.state.clients.sort((a, b) => b.activeTime - a.activeTime)
 
     // set state
     this.setState(this.state)

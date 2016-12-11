@@ -12,6 +12,7 @@ use Korzilius\Entity\Message;
 class Module {
 
   protected $application;
+  protected $eloUserIdUserMap;
 
   public function getAutoloaderConfig() {
     return [
@@ -115,7 +116,125 @@ class Module {
     }
   }
 
-  public function onBackboneDocumentUpdated(Event $event) {
+  public function getUserByEloUserId($eloUserId) {
+    $serviceManager = $this->application->getServiceManager();
 
+    if ($this->eloUserIdUserMap === null) {
+      $userMapper = $serviceManager->get(Mapper\UserMapper::class);
+      $users = $userMapper->fetchAll();
+
+      // map elo user ids to users
+      $this->eloUserIdUserMap = [];
+      foreach ($users as $user) {
+        $this->eloUserIdUserMap[$user->getEloUserId()] = $user;
+      }
+    }
+
+    return isset($this->eloUserIdUserMap[$eloUserId])
+      ? $this->eloUserIdUserMap[$eloUserId]
+      : null;
+  }
+
+  public function onBackboneDocumentUpdated(Event $event) {
+    // get services
+    $serviceManager = $this->application->getServiceManager();
+    $clientMapper = $serviceManager->get(Mapper\ClientMapper::class);
+    $messageMapper = $serviceManager->get(Mapper\MessageMapper::class);
+
+    $data = $event->getParam('document');
+    $documentId = (string) $data['id'];
+
+    // mask field values to field names
+    $maskFields = $data['mask']['fields'];
+    $maskFieldValues = [];
+
+    foreach ($maskFields as $maskField) {
+      $maskFieldValues[$maskField['name']] = $maskField['value'];
+    }
+
+    // retrieve relevant client names from mask fields
+    $clientNames = [];
+    if (isset($maskFieldValues['txt_client_name1'])) {
+      array_push($clientNames, $maskFieldValues['txt_client_name1']);
+    }
+    if (isset($maskFieldValues['txt_client2_name'])) {
+      array_push($clientNames, $maskFieldValues['txt_client2_name']);
+    }
+
+    if (count($clientNames) === 0) {
+      trigger_error(sprintf(
+        '%s - Unable to determine relevant client names for document %d',
+        __METHOD__,
+        $documentId
+      ), E_USER_NOTICE);
+      return;
+    }
+
+    // match clients to this document
+    $clients = $clientMapper->fetchAllByName($clientNames);
+    if (count($clients) === 0) {
+      trigger_error(sprintf(
+        '%s - Unable to retrieve clients for document %d by name (%s)',
+        __METHOD__,
+        $documentId,
+        implode(', ', $clientNames)
+      ), E_USER_NOTICE);
+      return;
+    }
+
+    // check if messages already exist for this document
+    $messages = $messageMapper->fetchAllByTargetId($documentId);
+
+    // map existing messages to their corresponding receiver
+    $receiverMessageMap = [];
+    foreach ($messages as $message){
+      $receiverMessageMap[$message->getReceiverClientId()] = $message;
+    }
+
+    // collect message receiver ids
+    $messageReceiverIds = array_map(function($client) {
+      return $client->getId();
+    }, $clients);
+
+    // collect former and future message receiver for this document
+    $receiverIds = array_unique(array_merge(
+      $messageReceiverIds,
+      array_keys($receiverMessageMap)
+    ));
+
+    // manage message for each receiver
+    foreach ($receiverIds as $receiverId) {
+      $message = isset($receiverMessageMap[$receiverId])
+        ? $receiverMessageMap[$receiverId]
+        : null;
+
+      // check if this receiver should have a message for this document
+      if (array_search($receiverId, $messageReceiverIds) !== false) {
+        // create new message if not existing yet
+        if ($message === null) {
+          $sendTime = new DateTime();
+          $sendTime->setTimestamp($data['createTime']);
+
+          $message = (new Message())
+            ->setSendTime($sendTime)
+            ->setSenderUser($this->getUserByEloUserId($data['createUserId']))
+            ->setDeliveredTime(new DateTime());
+        }
+
+        // update message and save
+        $message
+          ->setType('document')
+          ->setReceiverClientId($receiverId)
+          ->setTargetId($documentId)
+          ->setText($data['title'])
+          ->setMeta($data);
+
+        $messageMapper->save($message);
+
+      } else if ($message !== null) {
+        // delete existing message
+        $messageMapper->delete($message);
+      }
+    }
   }
 }

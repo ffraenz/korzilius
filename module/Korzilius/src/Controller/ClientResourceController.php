@@ -34,8 +34,7 @@ class ClientResourceController extends AbstractRestfulController {
   }
 
   public function getList() {
-    $exampleIds = [100660, 4, 74, 257, 345, 559];
-    $clients = $this->getClientMapper()->fetchAllByIds($exampleIds);
+    $clients = $this->getClientMapper()->fetchLatest();
 
     $data = array_map(function($client) {
       return $this->getHydrator()->extract($client);

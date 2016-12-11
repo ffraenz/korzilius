@@ -91,5 +91,11 @@ class Client extends AbstractEntity {
     'updateTime' => [
       'type' => 'dateTime',
     ],
+    'activeTime' => [
+      'type' => 'dateTime',
+      'ignoreExtract' => [
+        EntityDbHydrator::class,
+      ],
+    ],
   ];
 }
