@@ -1,0 +1,6 @@
+
+# exclude application files from opcache during development
+/var/www/html/module
+/var/www/html/config
+/var/www/html/data
+/var/www/html/public

@@ -9,5 +9,10 @@
   "require": {
     "zendframework/zendframework": "^3.0.0",
     "vlucas/phpdotenv": "^2.0.1"
+  },
+  "autoload": {
+    "classmap": [
+      "module/"
+    ]
   }
 }

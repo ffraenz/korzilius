@@ -12,6 +12,7 @@ RUN a2enmod rewrite
 
 # install php.ini
 COPY dockerfile-assets/php.ini /usr/local/etc/php
+COPY dockerfile-assets/opcache-blacklist.txt /usr/local/etc/php/opcache-blacklist.txt
 
 # install apache2 site conf
 COPY dockerfile-assets/apache2-site.conf /etc/apache2/sites-available/site.conf
