@@ -10,7 +10,7 @@ return [
   'service_manager' => [
     'factories' => [
       Service\MessageService::class => Factory\Service\MessageService::class,
-      Mapper\MessageMapper::class => InvokableFactory::class,
+      Mapper\MessageMapper::class => Factory\Mapper\MessageMapper::class,
       Mapper\ClientMapper::class => InvokableFactory::class,
       Mapper\UserMapper::class => InvokableFactory::class,
       Entity\EntityArrayHydrator::class => InvokableFactory::class,

@@ -13,10 +13,18 @@ const MessageThread = props => {
     isOtherSide ? 'message-thread--side-other' : []
   ).join(' ')
 
+  let avatarImageUrl = null
+  if (!isOtherSide && messages[0].senderUser !== null) {
+    avatarImageUrl = messages[0].senderUser.avatarImageUrl
+  }
+
   return (
     <div className={className}>
       <div className="message-thread__source">
-        <div className="message-thread__avatar"></div>
+        <div className="message-thread__avatar">
+          {avatarImageUrl &&
+            <img className="message-thread__avatar-img" src={avatarImageUrl} />}
+        </div>
       </div>
       <div className="message-thread__messages">
         {messages.map(message => <Message message={message} />)}

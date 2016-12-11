@@ -15,11 +15,18 @@ $message-thread-avatar-size: 42px;
   }
 
   &__avatar {
+    position: relative;
     display: block;
     width: $message-thread-avatar-size;
     height: $message-thread-avatar-size;
     border-radius: 50%;
     background: $color-fill-gray-light;
+    overflow: hidden;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
   }
 
   &__messages {

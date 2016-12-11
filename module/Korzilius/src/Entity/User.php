@@ -25,5 +25,8 @@ class User extends AbstractEntity {
     'eloScanShareName' => [
       'type' => 'string',
     ],
+    'avatarImageUrl' => [
+      'type' => 'string',
+    ],
   ];
 }

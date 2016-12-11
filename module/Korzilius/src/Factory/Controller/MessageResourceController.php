@@ -7,6 +7,7 @@ use Interop\Container\ContainerInterface;
 
 use Korzilius\Mapper\MessageMapper;
 use Korzilius\Mapper\ClientMapper;
+use Korzilius\Mapper\UserMapper;
 use Korzilius\Entity\EntityArrayHydrator;
 
 class MessageResourceController implements FactoryInterface {
