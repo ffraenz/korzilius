@@ -111,6 +111,13 @@ class Module {
 
       $messageMapper->save($message);
 
+      // push message received event to clients
+      $hydrator = $serviceManager->get(Entity\EntityArrayHydrator::class);
+      $webSocketService = $serviceManager->get(Service\WebSocketService::class);
+
+      $webSocketService->pushEvent(
+        'messageReceived', $hydrator->extract($message));
+
     } else {
 
     }

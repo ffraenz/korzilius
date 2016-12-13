@@ -67,7 +67,9 @@ class MessageMapper extends AbstractEntityMapper {
 
     // fetch embedded users
     $userIds = array_unique(array_filter($userIds));
-    $users = $this->getUserMapper()->fetchAllbyIds($userIds);
+    $users = count($userIds) > 0
+      ? $this->getUserMapper()->fetchAllbyIds($userIds)
+      : [];
 
     $usersMap = [];
     foreach ($users as $user) {

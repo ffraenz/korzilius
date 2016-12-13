@@ -65,9 +65,9 @@ export default class Chat extends React.Component {
         if (sendMoment.isSame(new Date(), 'day')) {
           formattedSendTime = sendMoment.format('LT')
         } else if (sendMoment.isSame(new Date(), 'year')) {
-          formattedSendTime = sendMoment.format('do MMMM LT')
+          formattedSendTime = sendMoment.format('Do MMMM LT')
         } else {
-          formattedSendTime = sendMoment.format('do MMMM YYYY')
+          formattedSendTime = sendMoment.format('Do MMMM YYYY')
         }
 
         content.push(

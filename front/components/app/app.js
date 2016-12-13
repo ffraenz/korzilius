@@ -1,6 +1,7 @@
 
 import React from 'react'
 import request from '../../scripts/lib/request'
+import socketIO from 'socket-io'
 
 import List from '../list/list'
 import AppHeader from '../app-header/app-header'
@@ -19,6 +20,18 @@ export default class App extends React.Component {
       clientMessages: {},
       selectedClientId: null,
     }
+
+    // connect to socket server
+    this.socketServer = socketIO('http://localhost:50080')
+
+    this.socketServer.on('clientUpdated', client => {
+      this.integrateClients([client])
+    })
+
+    this.socketServer.on('messageReceived', message => {
+      this.integrateMessages([message])
+      console.log('message received', message)
+    })
 
     // request last updated clients
     request('/api/clients').then(response => {
@@ -66,7 +79,9 @@ export default class App extends React.Component {
       let clientId = message.senderClientId || message.receiverClientId
 
       if (clientId) {
-        if (this.state.clientMessages[clientId].length === 0) {
+        if (this.state.clientMessages[clientId] === undefined) {
+          this.state.clientMessages[clientId] = [message]
+        } else if (this.state.clientMessages[clientId].length === 0) {
           this.state.clientMessages[clientId].push(message)
         } else {
           let clientMessages = this.state.clientMessages[clientId]
@@ -85,11 +100,14 @@ export default class App extends React.Component {
               clientMessages.push(message)
             } else {
               // integrate message between others
-              let index = -1
+              let index = clientMessages.length - 1
               while (
-                ++index < clientMessages.length &&
+                index > 0 &&
                 message.sendTime > clientMessages[index].sendTime
-              );
+              ) {
+                index -= 1
+              }
+
               clientMessages.splice(index, 0, message)
             }
           }

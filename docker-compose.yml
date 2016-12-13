@@ -8,6 +8,7 @@
       image: korzilius-web:latest
       links:
         - korziliusdb:db
+        - korziliussockets:sockets
       volumes:
         - .:/var/www/html
       ports:
@@ -24,11 +25,18 @@
         - MYSQL_PASSWORD=korzilius
       ports:
         - "3306:3306"
+    korziliussockets:
+      environment:
+        - API_PORT=50071
+        - SOCKETS_PORT=50080
+      container_name: korzilius-sockets
+      build: docker/sockets/
+      image: korzilius-sockets:latest
+      ports:
+        - "50080:50080"
     korziliuscache:
       container_name: korzilius-cache
       image: memcached:latest
-      ports:
-        - "11211:11211"
   volumes:
     database:
       driver: local
