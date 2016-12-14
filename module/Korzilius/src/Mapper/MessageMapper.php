@@ -27,6 +27,12 @@ class MessageMapper extends AbstractEntityMapper {
     return new Message();
   }
 
+  public function fetchSingleByExternalId($externalId) {
+    $select = $this->getSql()->select();
+    $select->where->equalTo('external_id', $externalId);
+    return $this->populate($this->selectWith($select)->current() ?: null);
+  }
+
   public function fetchAllByClient(Client $client, $count = 30, $offset = 0) {
     $select = $this->getSql()->select();
     $select->where([

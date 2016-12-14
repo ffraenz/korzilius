@@ -98,6 +98,14 @@ class Module {
       return;
     }
 
+    // handle deduplication of updates that may result from multiple attempts
+    $message = $messageMapper->fetchSingleByExternalId($event->getParam('id'));
+
+    if ($message !== null) {
+      // ignore duplicated update
+      return;
+    }
+
     if (!$sentByPage) {
 
       // create message
