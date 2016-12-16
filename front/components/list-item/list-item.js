@@ -67,7 +67,7 @@ const ListItem = props => {
   }
 
   return (
-    <li className={className}>
+    <li className={className} key={props.key}>
       {content}
     </li>
   )

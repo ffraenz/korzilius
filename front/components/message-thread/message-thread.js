@@ -13,13 +13,16 @@ const MessageThread = props => {
     isOtherSide ? 'message-thread--side-other' : []
   ).join(' ')
 
+  // retrieve thread meta data from first message
+  let message = messages[0]
+
   let avatarImageUrl = null
-  if (!isOtherSide && messages[0].senderUser !== null) {
-    avatarImageUrl = messages[0].senderUser.avatarImageUrl
+  if (!isOtherSide && message.senderUser !== null) {
+    avatarImageUrl = message.senderUser.avatarImageUrl
   }
 
   return (
-    <div className={className}>
+    <div className={className} key={message.id}>
       <div className="message-thread__source">
         <div className="message-thread__avatar">
           {avatarImageUrl &&

@@ -159,6 +159,7 @@ export default class App extends React.Component {
       return {
         title: title,
         text: detail,
+        key: client.id,
         modifiers: active ? ['active'] : [],
         onClick: evt => this.selectClient(client),
       }

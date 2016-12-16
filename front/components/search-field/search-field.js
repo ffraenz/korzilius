@@ -7,10 +7,17 @@ export default class SearchField extends React.Component {
     super(props)
   }
 
+  onKeyUp (evt) {
+
+  }
+
   render () {
     return (
       <div className="search-field">
-        <input className="search-field__input" placeholder="Sichen" />
+        <input
+          className="search-field__input"
+          placeholder="Sichen"
+          keyup={this.onKeyUp.bind(this)} />
       </div>
     )
   }

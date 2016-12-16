@@ -1,0 +1,38 @@
+
+.message-document {
+  padding: $message-padding-v $message-padding-h;
+
+  &__title {
+    margin: 0 0 10px;
+    font-size: inherit;
+    font-weight: normal;
+  }
+
+  &__mask {
+
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: row;
+    font-size: 13px;
+  }
+
+  &__label {
+    display: block;
+    width: 80px;
+    margin-right: 15px;
+    padding: 3px 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  &__value {
+    display: block;
+    width: 150px;
+    padding: 3px 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
