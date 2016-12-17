@@ -2,6 +2,7 @@
 
 namespace Korzilius\Mapper;
 
+use DateTime;
 use Zend\Db\Sql;
 
 use Korzilius\Entity\Message;
@@ -33,16 +34,29 @@ class MessageMapper extends AbstractEntityMapper {
     return $this->populate($this->selectWith($select)->current() ?: null);
   }
 
-  public function fetchAllByClient(Client $client, $count = 30, $offset = 0) {
+  public function fetchAllByClient(
+    Client $client,
+    DateTime $sentBeforeTime = null,
+    $count = 30
+  ) {
     $select = $this->getSql()->select();
-    $select->where([
-      'sender_client_id' => $client->getId(),
-      'receiver_client_id' => $client->getId(),
-    ], Sql\Predicate\PredicateSet::OP_OR);
+
+    $select->where
+      ->nest()
+        ->equalTo('sender_client_id', $client->getId())
+        ->or
+        ->equalTo('receiver_client_id', $client->getId())
+      ->unnest();
+
+    if ($sentBeforeTime !== null) {
+      $select->where
+        ->and
+        ->lessThan('send_time', $sentBeforeTime->format('Y-m-d H:i:s'));
+    }
 
     $select->order('send_time DESC');
     $select->limit($count);
-    $select->offset($offset);
+
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }
 

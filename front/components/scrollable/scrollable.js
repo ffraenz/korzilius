@@ -1,5 +1,6 @@
 
 import React from 'react'
+import Loader from '../loader/loader'
 
 const FLOW_DOWN = 'down';
 const FLOW_UP = 'up';
@@ -8,63 +9,115 @@ export default class Scrollable extends React.Component {
 
   static get defaultProps() {
     return {
-      flow: FLOW_DOWN,
       classes: [],
       modifiers: [],
+      flow: FLOW_DOWN,
+
+      infiniteScrolling: false,
+      onScrollEndReached: null,
+
+      // scrollable tracks its context and scrolls
+      // to initial position when it changes
+      context: null
     }
   }
 
   constructor (props) {
     super(props)
 
-    this.$el = null
     this.$scroll = null
     this.$tape = null
+    this.$loader = null
 
-    this.maxScrollTop = 0
+    this.loaderHeight = 0
+    this.maxScrollDistance = 0
+    this.scrollingEnabled = true
+    this.reachedScrollEnd = false
+    this.context = null
+
     this.resizeHandler = this.onLayout.bind(this)
 
+    // initial state
     this.state = {
       scrolling: false
     }
   }
 
   componentDidMount () {
+    this.context = this.props.context
+
     window.addEventListener('resize', this.resizeHandler)
     this.onLayout()
   }
 
-  onLayout (evt) {
-    this.maxScrollTop =
+  onLayout (evt = null) {
+    this.maxScrollDistance =
       this.$tape.getBoundingClientRect().height
       - this.$scroll.getBoundingClientRect().height
+
+    if (this.props.infiniteScrolling) {
+      this.loaderHeight = this.$loader.getBoundingClientRect().height
+    }
+
+    this.scrollingEnabled = (this.maxScrollDistance > 0)
   }
 
-  onScroll (evt) {
+  onScroll (evt = null) {
+    if (!this.scrollingEnabled) {
+      return;
+    }
+
     let scrollTop = this.$scroll.scrollTop
+
+    // check if scrollable left its initial scroll position
     let scrolling = (
-      this.props.flow === FLOW_UP && scrollTop < this.maxScrollTop ||
+      this.props.flow === FLOW_UP && scrollTop < this.maxScrollDistance ||
       this.props.flow === FLOW_DOWN && scrollTop > 0
     )
 
     if (this.state.scrolling !== scrolling) {
-      this.state.scrolling = scrolling
+      this.setState({
+        scrolling: scrolling
+      })
+    }
 
-      // don't use set state to prevent rerendering the element
-      if (scrolling) {
-        this.$el.classList.add('scrollable--scrolling')
-      } else {
-        this.$el.classList.remove('scrollable--scrolling')
+    if (this.props.infiniteScrolling) {
+      let reachedScrollEnd = ((
+        this.props.flow === FLOW_DOWN &&
+        scrollTop > this.maxScrollDistance - this.loaderHeight
+      ) || (
+        this.props.flow === FLOW_UP &&
+        scrollTop < this.loaderHeight
+      ))
+
+      if (this.reachedScrollEnd !== reachedScrollEnd) {
+        this.reachedScrollEnd = reachedScrollEnd
+        if (reachedScrollEnd && this.props.onScrollEndReached !== null) {
+          this.props.onScrollEndReached()
+        }
       }
     }
   }
 
   componentDidUpdate () {
+    // new content may have changed bounds and scroll position
     this.onLayout()
 
-    if (this.props.flow === FLOW_UP) {
-      // set initial scroll position to the bottom
-      this.$scroll.scrollTop = this.$scroll.scrollHeight
+    // check if context has changed
+    if (this.context !== this.props.context) {
+      this.context = this.props.context
+
+      // scroll to initial position when context of content changed
+      if (this.props.flow === FLOW_DOWN) {
+        this.$scroll.scrollTop = 0
+      } else {
+        this.$scroll.scrollTop = this.maxScrollDistance
+      }
+
+      // reset scrolling
+      this.setState({
+        scrolling: false
+      })
     }
   }
 
@@ -81,14 +134,30 @@ export default class Scrollable extends React.Component {
       this.state.scrolling ? 'scrollable--scrolling' : []
     ).join(' ')
 
+    let content = this.props.children
+
+    if (this.props.infiniteScrolling) {
+      // create loader
+      let loader = (
+        <div className="scrollable__loader" ref={$el => this.$loader = $el}>
+          <Loader />
+        </div>
+      )
+
+      // depending on flow, append or prepend loader to content
+      content = (this.props.flow === FLOW_DOWN
+        ? [content, loader]
+        : [loader, content])
+    }
+
     return (
-      <div className={ className } ref={ $el => this.$el = $el }>
+      <div className={className}>
         <div
           className="scrollable__scroll"
-          ref={ $el => this.$scroll = $el }
-          onScroll={ this.onScroll.bind(this) }>
-          <div className="scrollable__tape" ref={ $el => this.$tape = $el }>
-            { this.props.children }
+          ref={$el => this.$scroll = $el}
+          onScroll={this.onScroll.bind(this)}>
+          <div className="scrollable__tape" ref={$el => this.$tape = $el}>
+            {content}
           </div>
         </div>
       </div>

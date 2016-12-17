@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 178.7 178.7" xml:space="preserve">
+
+	<style type="text/css">
+	.hook {
+		fill: #68757E;
+		transform-origin: left top;
+		animation-name: hook-h;
+		animation-duration: 3.0s;
+		animation-delay: -1.5s;
+		animation-iteration-count: infinite;
+		animation-timing-function: ease;
+	}
+
+	.hook--v {
+		animation-name: hook-v;
+	}
+
+	.hook--top-left {
+		animation-name: hook-top-left-h;
+	}
+
+	.hook--top-left.hook--v {
+		animation-name: hook-top-left-v;
+	}
+
+	.hook--top-right,
+	.hook--bottom-left {
+		animation-delay: -1.25s;
+	}
+
+	.hook--bottom-right {
+		animation-delay: -1.0s;
+		animation-name: hook-bottom-right-h;
+	}
+
+	.hook--bottom-right.hook--v {
+		animation-name: hook-bottom-right-v;
+	}
+
+	@keyframes hook-h {
+		0% {
+			transform: translate(25px, 25px) scale(1.0, 0.0);
+		}
+		20% {
+			transform: none;
+		}
+		70% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-25px, -25px) scale(1.0, 0.0);
+		}
+		100% {
+			transform: translate(-25px, -25px) scale(1.0, 0.0);
+		}
+	}
+
+	@keyframes hook-v {
+		0% {
+			transform: translate(25px, 25px) scale(0.0, 1.0);
+		}
+		20% {
+			transform: none;
+		}
+		70% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-25px, -25px) scale(0.0, 1.0);
+		}
+		100% {
+			transform: translate(-25px, -25px) scale(0.0, 1.0);
+		}
+	}
+
+	@keyframes hook-top-left-h {
+		0% {
+			transform: none;
+		}
+		70% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-25px, -25px) scale(1.0, 0.0);
+		}
+		100% {
+			transform: translate(-25px, -25px) scale(1.0, 0.0);
+		}
+	}
+
+	@keyframes hook-top-left-v {
+		0% {
+			transform: none;
+		}
+		70% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-25px, -25px) scale(0.0, 1.0);
+		}
+		100% {
+			transform: translate(-25px, -25px) scale(0.0, 1.0);
+		}
+	}
+
+	@keyframes hook-bottom-right-h {
+		0% {
+			transform: translate(25px, 25px) scale(1.0, 0.0);
+		}
+		20% {
+			transform: none;
+		}
+		67% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-43.9px, -43.9px);
+		}
+		100% {
+			transform: translate(-43.9px, -43.9px);
+		}
+	}
+
+	@keyframes hook-bottom-right-v {
+		0% {
+			transform: translate(25px, 25px) scale(0.0, 1.0);
+		}
+		20% {
+			transform: none;
+		}
+		67% {
+			transform: none;
+		}
+		90% {
+			transform: translate(-43.9px, -43.9px);
+		}
+		100% {
+			transform: translate(-43.9px, -43.9px);
+		}
+	}
+	</style>
+
+	<!-- top left hook -->
+	<rect class="hook hook--top-left hook--h" x="50" y="50" width="34.8" height="9.2" />
+	<rect class="hook hook--top-left hook--v" x="50" y="50" width="9.2" height="34.8" />
+
+	<!-- bottom left hook -->
+	<rect class="hook hook--bottom-left hook--h" x="50" y="93.9" width="34.8" height="9.2" />
+	<rect class="hook hook--bottom-left hook--v" x="50" y="93.9" width="9.2" height="34.8" />
+
+	<!-- top right hook -->
+	<rect class="hook hook--top-right hook--h" x="93.9" y="50" width="34.8" height="9.2" />
+	<rect class="hook hook--top-right hook--v" x="93.9" y="50" width="9.2" height="34.8" />
+
+	<!-- bottom right hook -->
+	<rect class="hook hook--bottom-right hook--h" x="93.9" y="93.9" width="34.8" height="9.2" />
+	<rect class="hook hook--bottom-right hook--v" x="93.9" y="93.9" width="9.2" height="34.8" />
+
+</svg>

@@ -7,7 +7,7 @@ const defaultOptions = {
   body: ''
 }
 
-export default function request (url, options) {
+export default function request (url, options = {}) {
 
   // apply default options
   options = Object.assign(defaultOptions, options)
@@ -28,7 +28,7 @@ export default function request (url, options) {
       requestBody = ''
     }
   }
-  
+
   // initialize request
   let xhr = new XMLHttpRequest()
   xhr.open(requestMethod, url)

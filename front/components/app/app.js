@@ -9,6 +9,9 @@ import ClientView from '../client-view/client-view'
 import SearchField from '../search-field/search-field'
 import Scrollable from '../scrollable/scrollable'
 
+const CLIENTS_PAGE_COUNT = 20
+const CLIENT_MESSAGES_PAGE_COUNT = 30
+
 export default class App extends React.Component {
 
   constructor (props) {
@@ -17,6 +20,8 @@ export default class App extends React.Component {
     // initial state
     this.state = {
       clients: [],
+      loadingClients: false,
+      reachedClientsEnd: false,
       clientMessages: {},
       selectedClientId: null,
     }
@@ -29,15 +34,12 @@ export default class App extends React.Component {
     })
 
     this.socketServer.on('messageReceived', message => {
-      this.integrateMessages([message])
+      this.integrateClientMessages([message])
       console.log('message received', message)
     })
 
-    // request last updated clients
-    request('/api/clients').then(response => {
-      let clients = response.data
-      this.integrateClients(clients)
-    })
+    // request first clients page
+    this.fetchNextClientsPage()
   }
 
   findClient (id) {
@@ -46,9 +48,44 @@ export default class App extends React.Component {
     })
   }
 
+  fetchNextClientsPage () {
+    if (this.state.loadingClients || this.state.reachedClientsEnd) {
+      // nothing to load
+      return
+    }
+
+    this.setState({
+      loadingClients: true
+    })
+
+    // retrieve last active client
+    let clients = this.state.clients
+    let data = {}
+
+    if (clients.length > 0) {
+      data['active_before'] = clients[clients.length - 1].activeTime
+    }
+
+    // request next clients page
+    request('/api/clients', { data }).then(response => {
+      let clients = response.data
+
+      if (clients.length < CLIENTS_PAGE_COUNT) {
+        this.state.reachedClientsEnd = true
+      }
+
+      this.integrateClients(clients)
+      this.state.loadingClients = false
+    })
+  }
+
   integrateClients (clients) {
     // integrate each client in local state
     clients.forEach(client => {
+      // set flags on client
+      client.loadingMessages = false
+      client.reachedMessagesEnd = false
+
       // check if client already exists
       let existingClient = this.findClient(client)
       if (existingClient !== undefined) {
@@ -64,16 +101,46 @@ export default class App extends React.Component {
     // sort clients by update time
     this.state.clients.sort((a, b) => b.activeTime - a.activeTime)
 
-    // set state
-    this.setState(this.state)
-
     // replace empty selection by first client
     if (this.state.selectedClientId === null) {
       this.selectClient(this.state.clients[0])
     }
+
+    this.setState(this.state)
   }
 
-  integrateMessages (messages) {
+  fetchNextClientMessagesPage (client) {
+    if (client.loadingMessages || client.reachedMessagesEnd) {
+      // nothing to load
+      return
+    }
+
+    client.loadingMessages = true
+    this.setState(this.state)
+
+    // retrieve oldest message from this client
+    let clientMessages = this.state.clientMessages[client.id]
+    let data = {}
+
+    if (clientMessages) {
+      data['sent_before'] = clientMessages[clientMessages.length - 1].sendTime
+    }
+
+    // request next client messages page
+    request(`/api/clients/${client.id}/messages`, { data }).then(response => {
+      let messages = response.data
+
+      if (messages.length < CLIENT_MESSAGES_PAGE_COUNT) {
+        client.reachedMessagesEnd = true
+      }
+
+      this.integrateClientMessages(messages)
+      client.loadingMessages = false
+      this.setState(this.state)
+    })
+  }
+
+  integrateClientMessages (messages) {
     messages.forEach(message => {
       // match client to message
       let clientId = message.senderClientId || message.receiverClientId
@@ -81,8 +148,6 @@ export default class App extends React.Component {
       if (clientId) {
         if (this.state.clientMessages[clientId] === undefined) {
           this.state.clientMessages[clientId] = [message]
-        } else if (this.state.clientMessages[clientId].length === 0) {
-          this.state.clientMessages[clientId].push(message)
         } else {
           let clientMessages = this.state.clientMessages[clientId]
           let existingMessage = clientMessages.find(m => m.id === message.id)
@@ -113,10 +178,9 @@ export default class App extends React.Component {
           }
         }
       }
-
-      // set state
-      this.setState(this.state)
     });
+
+    this.setState(this.state)
   }
 
   selectClient (client) {
@@ -125,11 +189,7 @@ export default class App extends React.Component {
 
     if (this.state.clientMessages[client.id] === undefined) {
       // request messages for this client for the first time
-      this.state.clientMessages[client.id] = []
-      request(`/api/clients/${client.id}/messages`).then(response => {
-        let messages = response.data
-        this.integrateMessages(messages)
-      })
+      this.fetchNextClientMessagesPage(client)
     }
   }
 
@@ -170,7 +230,11 @@ export default class App extends React.Component {
 
     if (selectedClient) {
       let messages = this.getMessagesForClient(selectedClient)
-      clientView = <ClientView client={selectedClient} messages={messages} />
+      clientView = (
+        <ClientView
+          client={selectedClient}
+          messages={messages}
+          onMessagesEndReached={this.fetchNextClientMessagesPage.bind(this)} />)
     }
 
     return (
@@ -182,7 +246,9 @@ export default class App extends React.Component {
               <SearchField />
             </header>
             <div className="split-view__master">
-              <Scrollable>
+              <Scrollable
+                infiniteScrolling={!this.state.reachedClientsEnd}
+                onScrollEndReached={this.fetchNextClientsPage.bind(this)}>
                 <List items={clientItems} />
               </Scrollable>
             </div>

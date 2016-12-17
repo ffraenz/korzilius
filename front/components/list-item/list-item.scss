@@ -57,6 +57,10 @@ $list-item-compact-vertical-padding: 10px !default;
 
   &--section {
     padding-top: 20px;
+
+    &:first-child {
+      padding-top: 0;
+    }
   }
 
   &--icon {

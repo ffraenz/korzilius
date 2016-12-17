@@ -3,7 +3,7 @@ import React from 'react'
 
 import List from '../list/list'
 import ListItem from '../list-item/list-item'
-import Chat from '../chat/chat'
+import ChatView from '../chat-view/chat-view'
 import Scrollable from '../scrollable/scrollable'
 
 const ClientView = props => {
@@ -21,11 +21,6 @@ const ClientView = props => {
             <div className="client-view__header">
               <h2 className="client-view__headline">{title}</h2>
             </div>
-            <List modifiers={['compact']}>
-              <ListItem text="Noriichten" href="#" modifiers={['active']} />
-              <ListItem text="Ticketen" href="#" />
-              <ListItem text="Formularer" href="#" />
-            </List>
           </header>
           <div className="split-view__master">
             <Scrollable>
@@ -34,7 +29,13 @@ const ClientView = props => {
           </div>
         </div>
         <div className="split-view__detail">
-          <Chat messages={props.messages} />
+          <ChatView
+            context={`client-${client.id}`}
+            messages={props.messages}
+            infiniteScrolling={!client.reachedMessagesEnd}
+            onMessagesEndReached={() => {
+              props.onMessagesEndReached(client)
+            }} />
         </div>
       </div>
     </div>
@@ -178,10 +179,49 @@ function composeDetailItems (client) {
     })
   }
 
+  // compose form section
+  let formSection = []
+
+  formSection.push({
+    type: 'section',
+    title: 'Formularer',
+  })
+
+  formSection.push({
+    text: 'Protocole d\'entrevue',
+    icon: 'file-text-o',
+    href: '#'
+  })
+
+  formSection.push({
+    text: 'Note au département',
+    icon: 'file-text-o',
+    href: '#'
+  })
+
+  formSection.push({
+    text: 'Estimation',
+    icon: 'file-text-o',
+    href: '#'
+  })
+
+  formSection.push({
+    text: 'Inventaire avant-projet',
+    icon: 'file-text-o',
+    href: '#'
+  })
+
+  formSection.push({
+    text: 'Ventilation Vehi. Auto. Agricoles',
+    icon: 'file-text-o',
+    href: '#'
+  })
+
   // merge sections if they have any items
   return [].concat(
     privateSection.length > 1 ? privateSection : [],
-    proSection.length > 1 ? proSection : [])
+    proSection.length > 1 ? proSection : [],
+    formSection.length > 1 ? formSection : [])
 }
 
 export default ClientView

@@ -56,7 +56,7 @@ const ListItem = props => {
     content = (
       <a
         className="list-item__link"
-        href={props.href ? props.href : '#'}
+        href={props.href ? props.href : null}
         onClick={(evt) => {
           evt.preventDefault()
           return props.onClick(evt)

@@ -2,6 +2,7 @@
 
 namespace Korzilius\Controller;
 
+use DateTime;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Hydrator\HydratorInterface;
@@ -53,7 +54,16 @@ class MessageResourceController extends AbstractRestfulController {
       return new JsonModel();
     }
 
-    $messages = $this->getMessageMapper()->fetchAllByClient($client);
+    $sentBeforeTimestamp = $this->params()->fromQuery('sent_before', null);
+
+    $sentBeforeTime = null;
+    if ($sentBeforeTimestamp !== null) {
+      $sentBeforeTime = new DateTime();
+      $sentBeforeTime->setTimestamp($sentBeforeTimestamp);
+    }
+
+    $messages = $this->getMessageMapper()->fetchAllByClient(
+      $client, $sentBeforeTime);
 
     $data = array_map(function($message) {
       return $this->getHydrator()->extract($message);

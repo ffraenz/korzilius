@@ -36,15 +36,23 @@ class ClientMapper extends AbstractEntityMapper {
     );
   }
 
-  public function fetchLatest($count = 20, $offset = 0) {
+  public function fetchLatest(
+    DateTime $activeBeforeTime = null,
+    $count = 30
+  ) {
     $select = $this->getSql()->select();
     $this->joinActiveTime($select);
+
+    if ($activeBeforeTime !== null) {
+      $select->where
+        ->and
+        ->lessThan('active_time', $activeBeforeTime->format('Y-m-d H:i:s'));
+    }
 
     $select
       ->order('active_time DESC')
       ->order('update_time DESC')
-      ->limit($count)
-      ->offset($offset);
+      ->limit($count);
 
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }
@@ -70,6 +78,28 @@ class ClientMapper extends AbstractEntityMapper {
           ->or->expression('`company` = ?', $name)
       );
     }
+
+    return $this->populate(iterator_to_array($this->selectWith($select)));
+  }
+
+  public function fetchAllByKeywords($rawKeywords) {
+    $select = $this->getSql()->select();
+
+    $keywords = '';
+    foreach (explode(' ', $rawKeywords) as $keyword) {
+      $keywords .= '+' . $keyword . '* ';
+    }
+
+    $select->columns([
+      Sql\Select::SQL_STAR,
+      'name_score' => new Sql\Expression(
+        'MATCH (company, firstname, lastname) ' .
+        'AGAINST (? in boolean mode)',
+        $keywords),
+    ]);
+
+    $select->having->greaterThan('name_score', 2.0);
+    $select->order('name_score', 'DESC');
 
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }

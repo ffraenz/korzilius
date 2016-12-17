@@ -35,9 +35,10 @@
 @import "components/message/message";
 @import "components/message-thread/message-thread";
 @import "components/message-document/message-document";
-@import "components/chat/chat";
+@import "components/chat-view/chat-view";
 @import "components/search-field/search-field";
 @import "components/scrollable/scrollable";
+@import "components/loader/loader";
 
 // TRUMPS
 // Helpers, utilities and overrides

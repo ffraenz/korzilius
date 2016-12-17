@@ -32,6 +32,12 @@
     height: 100%;
   }
 
+  &__loader {
+    display: block;
+    position: relative;
+    height: 70px;
+  }
+
   &--flow-up {
 
     &:before {

@@ -5,21 +5,31 @@ import moment from 'moment'
 import MessageThread from '../message-thread/message-thread'
 import Scrollable from '../scrollable/scrollable'
 
-export default class Chat extends React.Component {
+export default class ChatView extends React.Component {
+
+  static get defaultProps() {
+    return {
+      context: null
+    }
+  }
 
   render () {
     let messageThreads = this.composeMessageThreads(this.props.messages)
 
     return (
-      <div className="chat">
-        <div className="chat__content">
-          <Scrollable flow="up">
-            <div className="chat__tape">
+      <div className="chat-view">
+        <div className="chat-view__content">
+          <Scrollable
+            flow="up"
+            infiniteScrolling={this.props.infiniteScrolling}
+            onScrollEndReached={this.props.onMessagesEndReached}
+            context={this.props.context}>
+            <div className="chat-view__tape">
               {messageThreads}
             </div>
           </Scrollable>
         </div>
-        <div className="chat__compose">
+        <div className="chat-view__compose">
         </div>
       </div>
     )
@@ -71,7 +81,7 @@ export default class Chat extends React.Component {
         }
 
         content.push(
-          <div className="chat__section">
+          <div className="chat-view__section">
             {formattedSendTime}
           </div>
         )

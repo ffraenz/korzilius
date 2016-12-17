@@ -2,6 +2,7 @@
 
 namespace Korzilius\Controller;
 
+use DateTime;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Hydrator\HydratorInterface;
@@ -34,7 +35,20 @@ class ClientResourceController extends AbstractRestfulController {
   }
 
   public function getList() {
-    $clients = $this->getClientMapper()->fetchLatest();
+    $query = $this->params()->fromQuery('q', null);
+    $activeBeforeTimestamp = $this->params()->fromQuery('active_before', null);
+
+    $activeBeforeTime = null;
+    if ($activeBeforeTimestamp !== null) {
+      $activeBeforeTime = new DateTime();
+      $activeBeforeTime->setTimestamp($activeBeforeTimestamp);
+    }
+
+    if ($query !== null) {
+      $clients = $this->getClientMapper()->fetchAllByKeywords($query);
+    } else {
+      $clients = $this->getClientMapper()->fetchLatest($activeBeforeTime);
+    }
 
     $data = array_map(function($client) {
       return $this->getHydrator()->extract($client);
