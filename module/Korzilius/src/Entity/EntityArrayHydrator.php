@@ -9,6 +9,10 @@ use Zend\Hydrator\NamingStrategy\UnderscoreNamingStrategy;
 class EntityArrayHydrator implements HydratorInterface {
 
   public function extract($entity) {
+    if ($entity === null) {
+      return null;
+    }
+
     $fields = $entity->getFields();
     $data = [];
 

@@ -33,6 +33,7 @@ const ClientView = props => {
             context={`client-${client.id}`}
             messages={props.messages}
             infiniteScrolling={!client.reachedMessagesEnd}
+            onMessagePost={props.onMessagePost}
             onMessagesEndReached={() => {
               props.onMessagesEndReached(client)
             }} />

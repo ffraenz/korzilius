@@ -7,12 +7,16 @@ use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Hydrator\HydratorInterface;
 
+use Korzilius\Exception\MessageServiceException;
+use Korzilius\Service\MessageService;
 use Korzilius\Mapper\MessageMapper;
 use Korzilius\Mapper\ClientMapper;
+use Korzilius\Entity\Message;
 
 class MessageResourceController extends AbstractRestfulController {
 
   protected $messageMapper;
+  protected $messageService;
   protected $clientMapper;
   protected $hydrator;
 
@@ -24,6 +28,15 @@ class MessageResourceController extends AbstractRestfulController {
 
   public function setMessageMapper(MessageMapper $messageMapper) {
     $this->messageMapper = $messageMapper;
+    return $this;
+  }
+
+  public function getMessageService() {
+    return $this->messageService;
+  }
+
+  public function setMessageService(MessageService $messageService) {
+    $this->messageService = $messageService;
     return $this;
   }
 
@@ -69,6 +82,47 @@ class MessageResourceController extends AbstractRestfulController {
       return $this->getHydrator()->extract($message);
     }, $messages);
 
+    return new JsonModel($data);
+  }
+
+  public function create($data) {
+    $clientId = $this->params()->fromRoute('client_id');
+
+    $client = $this->getClientMapper()->fetchSingleById($clientId);
+    if ($client === null) {
+      $this->getResponse()->setStatusCode(404);
+      return new JsonModel();
+    }
+
+    $text = $data['text'];
+    $channel = $data['channel'];
+
+    $receiver = $client;
+    $sender = null;
+
+    try {
+      $message = $this->getMessageService()
+        ->postToChannel($channel, $receiver, $text, $sender);
+
+    } catch (MessageServiceException $exception) {
+      // log error
+      trigger_error(sprintf(
+        '%s - MessageServiceException thrown: %s',
+        __METHOD__,
+        $exception->getMessage()
+      ), E_USER_WARNING);
+
+      // respond
+      $response->setStatusCode($exception->getCode());
+      return new JsonModel([
+        'error' => [
+          'message' => $exception->getMessage(),
+          'code' => $exception->getCode(),
+        ],
+      ]);
+    }
+
+    $data = $this->getHydrator()->extract($message);
     return new JsonModel($data);
   }
 }

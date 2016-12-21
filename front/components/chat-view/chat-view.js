@@ -4,6 +4,7 @@ import moment from 'moment'
 
 import MessageThread from '../message-thread/message-thread'
 import Scrollable from '../scrollable/scrollable'
+import Composer from '../composer/composer'
 
 export default class ChatView extends React.Component {
 
@@ -30,6 +31,10 @@ export default class ChatView extends React.Component {
           </Scrollable>
         </div>
         <div className="chat-view__compose">
+          <Composer
+            channels={['intern', 'facebook', 'sms']}
+            channelLabels={['Intern', 'Facebook', 'SMS']}
+            onPost={this.props.onMessagePost} />
         </div>
       </div>
     )

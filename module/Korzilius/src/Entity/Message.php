@@ -74,4 +74,26 @@ class Message extends AbstractEntity {
       'type' => 'dateTime',
     ],
   ];
+
+  public function setSender($sender = null) {
+    if ($sender instanceof User) {
+      $this->setSenderUser($sender);
+    } else if ($sender instanceof Client) {
+      $this->setSenderClient($sender);
+    } else if ($sender !== null) {
+      throw new Exception('Sender is expected to be a Client or User', 500);
+    }
+    return $this;
+  }
+
+  public function setReceiver($receiver = null) {
+    if ($receiver instanceof User) {
+      $this->setReceiverUser($receiver);
+    } else if ($receiver instanceof Client) {
+      $this->setReceiverClient($receiver);
+    } else if ($receiver !== null) {
+      throw new Exception('Receiver is expected to be a Client or User', 500);
+    }
+    return $this;
+  }
 }

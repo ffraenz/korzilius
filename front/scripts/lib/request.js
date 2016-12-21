@@ -10,7 +10,7 @@ const defaultOptions = {
 export default function request (url, options = {}) {
 
   // apply default options
-  options = Object.assign(defaultOptions, options)
+  options = Object.assign({}, defaultOptions, options)
 
   // prepare request body
   let requestMethod = options.method.toUpperCase()

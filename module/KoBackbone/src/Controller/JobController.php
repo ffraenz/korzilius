@@ -47,7 +47,7 @@ class JobController extends AbstractActionController {
       ]);
     }
 
-    $knownResources = ['documents', 'clients'];
+    $knownResources = ['clients', 'documents'];
     $updateResources = [];
 
     $resource = $this->params()->fromRoute('resource');

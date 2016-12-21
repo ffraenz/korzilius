@@ -34,7 +34,7 @@ class WebhookController extends AbstractActionController {
         '%s - WebhookServiceException thrown: %s',
         __METHOD__,
         $exception->getMessage()
-      ), E_USER_NOTICE);
+      ), E_USER_WARNING);
 
       // respond
       $response->setStatusCode($exception->getCode());

@@ -89,7 +89,9 @@ class JobService implements EventManagerAwareInterface {
       });
 
     // update last document update time
-    $this->setLastDocumentUpdateTime($lastUpdateTime);
+    if ($lastUpdateTime !== null) {
+      $this->setLastDocumentUpdateTime($lastUpdateTime);
+    }
 
     return $this;
   }
@@ -114,7 +116,9 @@ class JobService implements EventManagerAwareInterface {
       });
 
     // update last client update time
-    $this->setLastClientUpdateTime($lastUpdateTime);
+    if ($lastUpdateTime !== null) {
+      $this->setLastClientUpdateTime($lastUpdateTime);
+    }
 
     return $this;
   }
@@ -153,10 +157,6 @@ class JobService implements EventManagerAwareInterface {
       // set offset for next request
       $offset += $count;
 
-      /*if ($offset > 200) {
-        break;
-      }*/
-
       // log
       trigger_error(sprintf(
         '%s - Fetching resource updates for %s (%d)',
@@ -168,6 +168,6 @@ class JobService implements EventManagerAwareInterface {
     } while (count($resources) === $count);
 
     // return last update time
-    return $lastUpdateTime;
+    return ($lastUpdateTime > 0 ? $lastUpdateTime : null);
   }
 }

@@ -106,29 +106,23 @@ class Module {
       return;
     }
 
+    // create message
+    $message = (new Message())
+      ->setExternalId($event->getParam('id'))
+      ->setType('facebook')
+      ->setSendTime($event->getParam('time'))
+      ->setDeliveredTime(new DateTime())
+      ->setText($event->getParam('text'));
+
     if (!$sentByPage) {
-
-      // create message
-      $message = (new Message())
-        ->setExternalId($event->getParam('id'))
-        ->setType('facebook')
-        ->setSendTime($event->getParam('time'))
-        ->setDeliveredTime(new DateTime())
-        ->setSenderClient($client)
-        ->setText($event->getParam('text'));
-
-      $messageMapper->save($message);
-
-      // push message received event to clients
-      $hydrator = $serviceManager->get(Entity\EntityArrayHydrator::class);
-      $webSocketService = $serviceManager->get(Service\WebSocketService::class);
-
-      $webSocketService->pushEvent(
-        'messageReceived', $hydrator->extract($message));
-
+      $message->setSender($client);
     } else {
-
+      $message->setReceiver($client);
     }
+
+    // post message
+    $messageService = $serviceManager->get(Service\MessageService::class);
+    $messageService->post($message);
   }
 
   public function getUserByEloUserId($eloUserId) {
@@ -218,7 +212,10 @@ class Module {
     ));
 
     // manage message for each receiver
+    $messageService = $serviceManager->get(Service\MessageService::class);
+
     foreach ($receiverIds as $receiverId) {
+      // get existing message for this receiver
       $message = isset($receiverMessageMap[$receiverId])
         ? $receiverMessageMap[$receiverId]
         : null;
@@ -236,7 +233,7 @@ class Module {
             ->setDeliveredTime(new DateTime());
         }
 
-        // update message and save
+        // update message
         $message
           ->setType('document')
           ->setReceiverClientId($receiverId)
@@ -244,11 +241,11 @@ class Module {
           ->setText($data['title'])
           ->setMeta($data);
 
-        $messageMapper->save($message);
+        $messageService->post($message);
 
       } else if ($message !== null) {
         // delete existing message
-        $messageMapper->delete($message);
+        $messageService->remove($message);
       }
     }
   }

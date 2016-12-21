@@ -5,6 +5,7 @@ namespace Korzilius\Factory\Controller;
 use Zend\ServiceManager\Factory\FactoryInterface;
 use Interop\Container\ContainerInterface;
 
+use Korzilius\Service\MessageService;
 use Korzilius\Mapper\MessageMapper;
 use Korzilius\Mapper\ClientMapper;
 use Korzilius\Mapper\UserMapper;
@@ -17,6 +18,7 @@ class MessageResourceController implements FactoryInterface {
   ) {
     return (new \Korzilius\Controller\MessageResourceController())
       ->setMessageMapper($container->get(MessageMapper::class))
+      ->setMessageService($container->get(MessageService::class))
       ->setClientMapper($container->get(ClientMapper::class))
       ->setHydrator($container->get(EntityArrayHydrator::class));
   }

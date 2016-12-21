@@ -208,6 +208,18 @@ export default class App extends React.Component {
     return []
   }
 
+  postMessageToClient (client, channel, text) {
+    request(`/api/clients/${client.id}/messages`, {
+      method: 'POST',
+      data: {
+        channel,
+        text
+      }
+    }).then(response => {
+      console.log(response)
+    })
+  }
+
   render () {
     let clientItems = this.state.clients.map(client => {
       let title = client.company
@@ -234,6 +246,8 @@ export default class App extends React.Component {
         <ClientView
           client={selectedClient}
           messages={messages}
+          onMessagePost={(channel, text) =>
+            this.postMessageToClient(selectedClient, channel, text)}
           onMessagesEndReached={this.fetchNextClientMessagesPage.bind(this)} />)
     }
 

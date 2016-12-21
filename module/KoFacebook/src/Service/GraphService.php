@@ -124,7 +124,7 @@ class GraphService {
   }
 
   public function createMessage($recipietUserId, $message) {
-    $this->create('/me/messages', [
+    return $this->create('/me/messages', [
       'access_token' => $this->getPageAccessToken(),
     ], [
       'recipient' => [ 'id' => $recipietUserId ],
@@ -133,7 +133,7 @@ class GraphService {
   }
 
   public function createMessageSenderAction($recipietUserId, $senderAction) {
-    $this->create('/me/messages', [
+    return $this->create('/me/messages', [
       'access_token' => $this->getPageAccessToken(),
     ], [
       'recipient' => [ 'id' => $recipietUserId ],

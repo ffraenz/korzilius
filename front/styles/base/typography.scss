@@ -1,0 +1,29 @@
+
+body,
+input,
+textarea {
+  font-family: Roboto;
+  font-size: 15px;
+  line-height: 1.5;
+  color: $color-text;
+}
+
+a {
+  cursor: pointer;
+}
+
+::-webkit-input-placeholder {
+  color: $color-text-detail;
+}
+
+::-moz-placeholder {
+  color: $color-text-detail;
+}
+
+:-ms-input-placeholder {
+  color: $color-text-detail;
+}
+
+:-moz-placeholder {
+  color: $color-text-detail;
+}
