@@ -6,7 +6,8 @@
   &__brand {
     font-size: 0;
     color: transparent;
-    background: $color-ci-gray;
+    background: url(/assets/svg/logo.svg);
+    background-size: 100% auto;
     width: 25px;
     height: 25px;
   }

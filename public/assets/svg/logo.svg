@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 78.7 78.7" xml:space="preserve">
+
+ 	<style type="text/css">
+ 	.hook {
+ 		fill: #68757E;
+ 	}
+  </style>
+
+	<!-- top left hook -->
+	<rect class="hook hook--top-left hook--h" x="0" y="0" width="34.8" height="9.2" />
+	<rect class="hook hook--top-left hook--v" x="0" y="0" width="9.2" height="34.8" />
+
+	<!-- bottom left hook -->
+	<rect class="hook hook--bottom-left hook--h" x="0" y="43.9" width="34.8" height="9.2" />
+	<rect class="hook hook--bottom-left hook--v" x="0" y="43.9" width="9.2" height="34.8" />
+
+	<!-- top right hook -->
+	<rect class="hook hook--top-right hook--h" x="43.9" y="0" width="34.8" height="9.2" />
+	<rect class="hook hook--top-right hook--v" x="43.9" y="0" width="9.2" height="34.8" />
+
+	<!-- bottom right hook -->
+	<rect class="hook hook--bottom-right hook--h" x="43.9" y="43.9" width="34.8" height="9.2" />
+	<rect class="hook hook--bottom-right hook--v" x="43.9" y="43.9" width="9.2" height="34.8" />
+
+</svg>

@@ -87,7 +87,11 @@ class ClientMapper extends AbstractEntityMapper {
 
     $keywords = '';
     foreach (explode(' ', $rawKeywords) as $keyword) {
-      $keywords .= '+' . $keyword . '* ';
+      // prevent empty keywords
+      $keyword = trim($keyword);
+      if ($keyword !== '') {
+        $keywords .= '+' . $keyword . '* ';
+      }
     }
 
     $select->columns([

@@ -19,11 +19,13 @@ export default class App extends React.Component {
 
     // initial state
     this.state = {
+      client: null,
       clients: [],
+      searching: false,
+      clientSearchResults: null,
       loadingClients: false,
       reachedClientsEnd: false,
       clientMessages: {},
-      selectedClientId: null,
     }
 
     // connect to socket server
@@ -102,7 +104,7 @@ export default class App extends React.Component {
     this.state.clients.sort((a, b) => b.activeTime - a.activeTime)
 
     // replace empty selection by first client
-    if (this.state.selectedClientId === null) {
+    if (this.state.client === null) {
       this.selectClient(this.state.clients[0])
     }
 
@@ -184,20 +186,13 @@ export default class App extends React.Component {
   }
 
   selectClient (client) {
-    this.state.selectedClientId = client.id
+    this.state.client = client
     this.setState(this.state)
 
     if (this.state.clientMessages[client.id] === undefined) {
       // request messages for this client for the first time
       this.fetchNextClientMessagesPage(client)
     }
-  }
-
-  getSelectedClient () {
-    if (this.state.selectedClientId !== null) {
-      return this.findClient(this.state.selectedClientId)
-    }
-    return null
   }
 
   getMessagesForClient (client) {
@@ -220,13 +215,52 @@ export default class App extends React.Component {
     })
   }
 
+  onStartSearching () {
+    // empty search results
+    this.setState({
+      searching: true
+    })
+  }
+
+  onFinishSearching () {
+    // clear search results
+    this.setState({
+      searching: false,
+      clientSearchResults: null
+    })
+  }
+
+  onSearch (keywords) {
+    request(`/api/clients`, {
+      data: {
+        q: keywords
+      }
+    }).then(response => {
+      if (!this.state.searching) {
+        return
+      }
+
+      let clients = response.data
+      this.setState({
+        clientSearchResults: clients
+      })
+    })
+  }
+
   render () {
-    let clientItems = this.state.clients.map(client => {
+    let clients = this.state.clients
+    if (this.state.searching) {
+      clients = this.state.clientSearchResults !== null
+        ? this.state.clientSearchResults
+        : []
+    }
+
+    let clientItems = clients.map(client => {
       let title = client.company
         ? client.company : client.firstname + ' ' + client.lastname
 
       let detail = client.location
-      let active = (this.state.selectedClientId === client.id)
+      let active = (this.state.client.id === client.id)
 
       return {
         title: title,
@@ -238,16 +272,16 @@ export default class App extends React.Component {
     })
 
     let clientView = null
-    let selectedClient = this.getSelectedClient()
+    let client = this.state.client
 
-    if (selectedClient) {
-      let messages = this.getMessagesForClient(selectedClient)
+    if (client) {
+      let messages = this.getMessagesForClient(client)
       clientView = (
         <ClientView
-          client={selectedClient}
+          client={client}
           messages={messages}
           onMessagePost={(channel, text) =>
-            this.postMessageToClient(selectedClient, channel, text)}
+            this.postMessageToClient(client, channel, text)}
           onMessagesEndReached={this.fetchNextClientMessagesPage.bind(this)} />)
     }
 
@@ -257,11 +291,15 @@ export default class App extends React.Component {
           <div className="split-view__aside">
             <header className="split-view__header">
               <AppHeader />
-              <SearchField />
+              <SearchField
+                onStart={this.onStartSearching.bind(this)}
+                onFinish={this.onFinishSearching.bind(this)}
+                onSearch={this.onSearch.bind(this)} />
             </header>
             <div className="split-view__master">
               <Scrollable
-                infiniteScrolling={!this.state.reachedClientsEnd}
+                infiniteScrolling={
+                  !this.state.searching && !this.state.reachedClientsEnd}
                 onScrollEndReached={this.fetchNextClientsPage.bind(this)}>
                 <List items={clientItems} />
               </Scrollable>
