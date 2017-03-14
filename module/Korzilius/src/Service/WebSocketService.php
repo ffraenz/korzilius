@@ -5,6 +5,7 @@ namespace Korzilius\Service;
 use Zend\Http\Client as HttpClient;
 use Zend\Http\Request;
 use Zend\Json\Json;
+use Zend\Http\Client\Adapter\Exception\RuntimeException as HttpClientException;
 
 class WebSocketService {
 
@@ -44,6 +45,10 @@ class WebSocketService {
       'data' => $data,
     ]));
 
-    $this->getHttpClient()->send($request);
+    try {
+      $this->getHttpClient()->send($request);
+    } catch (HttpClientException $e) {
+      // fail silently
+    }
   }
 }
