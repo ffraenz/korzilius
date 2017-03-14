@@ -3,7 +3,6 @@
 // Global variables, config switches
 @import "vars/base";
 @import "vars/color";
-@import "vars/font";
 
 // TOOLS
 // Default mixins and functions
@@ -15,6 +14,7 @@
 
 // BASE
 // Unclassed HTML elements (type selectors)
+@import "base/font";
 @import "base/body";
 @import "base/typography";
 
