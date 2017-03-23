@@ -30,7 +30,7 @@ export default class App extends React.Component {
 
     // check for client in url
     let matches = location.pathname.match(/^\/clients\/([0-9]+)\/?$/)
-    if (matches.length > 1) {
+    if (matches) {
       // request selected client
       let clientId = parseInt(matches[1])
       this.fetchClientById(clientId).then(client => {
@@ -251,6 +251,9 @@ export default class App extends React.Component {
   }
 
   onSearch (keywords) {
+    if (!keywords) {
+      return;
+    }
     request(`/api/clients`, {
       data: {
         q: keywords
@@ -264,6 +267,8 @@ export default class App extends React.Component {
       this.setState({
         clientSearchResults: clients
       })
+    }).catch(() => {
+      this.setState({ clientSearchResults: [] })
     })
   }
 

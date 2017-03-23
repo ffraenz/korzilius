@@ -1,5 +1,7 @@
 
-# korzilius
+# Korzilius 2
+
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 Internal service used by [FF Friederes](https://friederes.lu/).
 
@@ -7,25 +9,19 @@ Internal service used by [FF Friederes](https://friederes.lu/).
 
 ### Install
 
-Make sure you have Virtual Box and [Docker Toolbox](https://www.docker.com/products/docker-toolbox) installed locally.
+Make sure you have [Docker](https://www.docker.com/) installed locally.
 
 Run `docker-compose up`.
-
-Look up the ip address of your docker machine:
-
-```
-docker-machine ip
-```
 
 Add following entry to your local `/etc/hosts` file:
 
 ```
-DOCKER_MACHINE_IP_HERE korzilius.dev
+127.0.0.1 korzilius.dev
 ```
 
 Create `.env` from `.env.docker`.
 
-Run `composer install`.
+Install dependencies.
 
 ```
 docker exec -i korzilius-web /bin/bash -c "composer install"
