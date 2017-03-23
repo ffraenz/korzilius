@@ -1,6 +1,7 @@
-vendor/
-node_modules/
-composer.phar
-.env
-.git
-.sass-cache
+/vendor/
+/node_modules/
+/log/
+/composer.phar
+/.env
+/.git
+/.sass-cache

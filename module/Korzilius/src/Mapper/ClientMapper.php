@@ -82,6 +82,14 @@ class ClientMapper extends AbstractEntityMapper {
     return $this->populate(iterator_to_array($this->selectWith($select)));
   }
 
+  public function fetchAllByAddress($street, $postCode) {
+    $select = $this->getSql()->select();
+    $select->where->expression(
+      'CONCAT(`house_number`, ", ", `street`) = ?', $street);
+    $select->where->equalTo('post_code', $postCode);
+    return $this->populate(iterator_to_array($this->selectWith($select)));
+  }
+
   public function fetchAllByKeywords($rawKeywords) {
     $select = $this->getSql()->select();
 

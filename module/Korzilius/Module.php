@@ -152,8 +152,9 @@ class Module {
 
     $data = $event->getParam('document');
     $documentId = (string) $data['id'];
+    $documentDescription = $data['description'];
 
-    // mask field values to field names
+    // map field values to field names
     $maskFields = $data['mask']['fields'];
     $maskFieldValues = [];
 
@@ -161,32 +162,44 @@ class Module {
       $maskFieldValues[$maskField['name']] = $maskField['value'];
     }
 
+    // try to match this document to clients
+    $clients = [];
+
     // retrieve relevant client names from mask fields
     $clientNames = [];
+
     if (isset($maskFieldValues['txt_client_name1'])) {
       array_push($clientNames, $maskFieldValues['txt_client_name1']);
     }
+
     if (isset($maskFieldValues['txt_client2_name'])) {
       array_push($clientNames, $maskFieldValues['txt_client2_name']);
     }
 
-    if (count($clientNames) === 0) {
-      trigger_error(sprintf(
-        '%s - Unable to determine relevant client names for document %d',
-        __METHOD__,
-        $documentId
-      ), E_USER_NOTICE);
-      return;
+    if (count($clientNames) > 0) {
+      // try to match clients by name
+      $clients = $clientMapper->fetchAllByName($clientNames);
     }
 
-    // match clients to this document
-    $clients = $clientMapper->fetchAllByName($clientNames);
+    if (count($clients) === 0) {
+      // search for a relevant address in mask fields
+      if (
+        isset($maskFieldValues['txt_client_address']) &&
+        isset($maskFieldValues['txt_client_cp'])
+      ) {
+        // try to match clients by address
+        $clients = $clientMapper->fetchAllByAddress(
+          $maskFieldValues['txt_client_address'],
+          $maskFieldValues['txt_client_cp']);
+      }
+    }
+
     if (count($clients) === 0) {
       trigger_error(sprintf(
-        '%s - Unable to retrieve clients for document %d by name (%s)',
+        '%s - Unable to match clients to document %d (%s)',
         __METHOD__,
         $documentId,
-        implode(', ', $clientNames)
+        $documentDescription
       ), E_USER_NOTICE);
       return;
     }
