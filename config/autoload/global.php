@@ -26,9 +26,6 @@ return [
       PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8mb4\''
     ],
   ],
-  'korzilius' => [
-    'websocket_service_endpoint' => getenv('KORZILIUS_WEBSOCKET_SERVICE_ENDPOINT'),
-  ],
   'korzilius_backbone' => [
     'endpoint' => getenv('KORZILIUS_BACKBONE_ENDPOINT'),
     'apikey' => getenv('KORZILIUS_BACKBONE_APIKEY'),

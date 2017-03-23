@@ -31,7 +31,6 @@ echo $this->headScript()
 <?php
 echo $this->inlineScript()
   ->prependFile($this->basePath('assets/scripts/script.js'))
-  ->prependFile($this->basePath('assets/scripts/vendor/socket-io.js'))
   ->prependFile($this->basePath('assets/scripts/vendor/react-dom.js'))
   ->prependFile($this->basePath('assets/scripts/vendor/react.js'))
   ->toString(4);

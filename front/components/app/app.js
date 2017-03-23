@@ -1,7 +1,6 @@
 
 import React from 'react'
 import request from '../../scripts/lib/request'
-import socketIO from 'socket-io'
 
 import List from '../list/list'
 import AppHeader from '../app-header/app-header'
@@ -27,18 +26,6 @@ export default class App extends React.Component {
       reachedClientsEnd: false,
       clientMessages: {},
     }
-
-    // connect to socket server
-    this.socketServer = socketIO('http://localhost:50080')
-
-    this.socketServer.on('clientUpdated', client => {
-      this.integrateClients([client])
-    })
-
-    this.socketServer.on('messageReceived', message => {
-      this.integrateClientMessages([message])
-      console.log('message received', message)
-    })
 
     // request first clients page
     this.fetchNextClientsPage()

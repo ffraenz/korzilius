@@ -18,7 +18,6 @@ class MessageService {
   protected $messageMapper;
   protected $hydrator;
 
-  protected $webSocketService;
   protected $graphService;
 
   public function getMessageMapper() {
@@ -36,15 +35,6 @@ class MessageService {
 
   public function setHydrator(HydratorInterface $hydrator) {
     $this->hydrator = $hydrator;
-    return $this;
-  }
-
-  public function getWebSocketService() {
-    return $this->webSocketService;
-  }
-
-  public function setWebSocketService(WebSocketService $webSocketService) {
-    $this->webSocketService = $webSocketService;
     return $this;
   }
 
@@ -121,29 +111,12 @@ class MessageService {
     // save message
     $this->getMessageMapper()->save($message);
 
-    // notify app clients
-    $messageData = $this->getHydrator()->extract($message);
-
-    if ($messageUpdate) {
-      $this->getWebSocketService()
-        ->pushEvent('messageUpdated', $messageData);
-    } else {
-      $this->getWebSocketService()
-        ->pushEvent('messageReceived', $messageData);
-    }
-
     return $message;
   }
 
   public function remove(Message $message) {
     // delete existing message
     $this->getMessageMapper()->delete($message);
-
-    // notify app clients
-    $messageData = $this->getHydrator()->extract($message);
-    $this->getWebSocketService()
-      ->pushEvent('messageDeleted', $messageData);
-
     return $message;
   }
 }

@@ -36,11 +36,10 @@ gulp.task('js', () => {
   // run module builder and return a stream
   const stream = rollup({
     entry: paths.js.src + '/main.js',
-    external: ['react', 'react-dom', 'socket-io'],
+    external: ['react', 'react-dom'],
     globals: {
       'react': 'React',
-      'react-dom': 'ReactDOM',
-      'socket-io': 'io'
+      'react-dom': 'ReactDOM'
     },
     plugins: [
       babel({
@@ -48,7 +47,7 @@ gulp.task('js', () => {
       }),
       nodeResolve({
         jsnext: true,
-        skip: ['react', 'react-dom', 'socket-io']
+        skip: ['react', 'react-dom']
       }),
       commonjs({
         include: 'node_modules/**'

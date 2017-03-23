@@ -11,7 +11,6 @@ return [
     'factories' => [
       Service\MessageService::class => Factory\Service\MessageService::class,
       Mapper\MessageMapper::class => Factory\Mapper\MessageMapper::class,
-      Service\WebSocketService::class => Factory\Service\WebSocketService::class,
       Mapper\ClientMapper::class => InvokableFactory::class,
       Mapper\UserMapper::class => InvokableFactory::class,
       Entity\EntityArrayHydrator::class => InvokableFactory::class,
