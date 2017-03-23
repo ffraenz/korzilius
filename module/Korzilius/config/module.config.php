@@ -35,9 +35,13 @@ return [
   'router' => [
     'routes' => [
       'home' => [
-        'type' => Literal::class,
+        'type' => Segment::class,
         'options' => [
-          'route' => '/',
+          'route' => '/[clients/:client_id]',
+          'priority' => -10,
+          'constraints' => [
+            'client_id' => '[0-9]+',
+          ],
           'defaults' => [
             'controller' => Controller\IndexController::class,
             'action' => 'index',

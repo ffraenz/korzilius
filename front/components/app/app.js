@@ -25,10 +25,24 @@ export default class App extends React.Component {
       loadingClients: false,
       reachedClientsEnd: false,
       clientMessages: {},
+      lastClientsPageActiveTime: null,
     }
 
-    // request first clients page
-    this.fetchNextClientsPage()
+    // check for client in url
+    let matches = location.pathname.match(/^\/clients\/([0-9]+)\/?$/)
+    if (matches.length > 1) {
+      // request selected client
+      let clientId = parseInt(matches[1])
+      this.fetchClientById(clientId).then(client => {
+        this.selectClient(client)
+
+        // request first clients page
+        this.fetchNextClientsPage()
+      })
+    } else {
+      // request first clients page
+      this.fetchNextClientsPage()
+    }
   }
 
   findClient (id) {
@@ -51,8 +65,8 @@ export default class App extends React.Component {
     let clients = this.state.clients
     let data = {}
 
-    if (clients.length > 0) {
-      data['active_before'] = clients[clients.length - 1].activeTime
+    if (this.state.lastClientsPageActiveTime !== null) {
+      data['active_before'] = this.state.lastClientsPageActiveTime
     }
 
     // request next clients page
@@ -65,7 +79,23 @@ export default class App extends React.Component {
 
       this.integrateClients(clients)
       this.state.loadingClients = false
+
+      this.state.lastClientsPageActiveTime =
+        clients.reduce((activeTime, client) => {
+          return !activeTime
+            ? client.activeTime
+            : Math.min(client.activeTime, activeTime)
+        })
     })
+  }
+
+  fetchClientById (clientId) {
+    return request(`/api/clients/${clientId}`)
+      .then(response => {
+        let client = response.data
+        this.integrateClients([client])
+        return client
+      })
   }
 
   integrateClients (clients) {
@@ -175,6 +205,9 @@ export default class App extends React.Component {
   selectClient (client) {
     this.state.client = client
     this.setState(this.state)
+
+    // update url
+    history.replaceState(null, null, `/clients/${client.id}`);
 
     if (this.state.clientMessages[client.id] === undefined) {
       // request messages for this client for the first time
