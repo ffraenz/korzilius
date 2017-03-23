@@ -49,7 +49,7 @@ class JobService implements EventManagerAwareInterface {
 
   public function getLastDocumentUpdateTime() {
     return $this->getPersistentCacheAdapter()
-      ->getItem('last-document-update-time');
+      ->getItem('last-document-update-time') ?: 0;
   }
 
   public function setLastDocumentUpdateTime($time) {
@@ -60,7 +60,7 @@ class JobService implements EventManagerAwareInterface {
 
   public function getLastClientUpdateTime() {
     return $this->getPersistentCacheAdapter()
-      ->getItem('last-client-update-time');
+      ->getItem('last-client-update-time') ?: 0;
   }
 
   public function setLastClientUpdateTime($time) {
@@ -70,104 +70,76 @@ class JobService implements EventManagerAwareInterface {
   }
 
   public function updateDocuments($all = false) {
-    $updateTime = new DateTime();
-    $parameters = [];
+    return $this->fetchResources(
+      '/documents',
+      $all ? 0 : $this->getLastDocumentUpdateTime(),
+      [$this, 'handleDocumentUpdate'],
+      [$this, 'setLastDocumentUpdateTime']
+    );
+  }
 
-    if (!$all) {
-      $lastUpdateTime = $this->getLastDocumentUpdateTime();
-      if ($lastUpdateTime !== null) {
-        $parameters['updated_since'] = $lastUpdateTime;
-      }
-    }
-
-    $lastUpdateTime = $this->fetchResources('/documents', $parameters,
-      function($document) use ($all) {
-        $this->getEventManager()->trigger('documentUpdated', $this, [
-          'document' => $document,
-          'flush' => $all,
-        ]);
-      });
-
-    // update last document update time
-    if ($lastUpdateTime !== null) {
-      $this->setLastDocumentUpdateTime($lastUpdateTime);
-    }
-
-    return $this;
+  public function handleDocumentUpdate($document) {
+    $this->getEventManager()->trigger('documentUpdated', $this, [
+      'document' => $document,
+    ]);
   }
 
   public function updateClients($all = false) {
-    $updateTime = new DateTime();
-    $parameters = [];
+    return $this->fetchResources(
+      '/clients',
+      $all ? 0 : $this->getLastClientUpdateTime(),
+      [$this, 'handleClientUpdate'],
+      [$this, 'setLastClientUpdateTime']
+    );
+  }
 
-    if (!$all) {
-      $lastUpdateTime = $this->getLastClientUpdateTime();
-      if ($lastUpdateTime !== null) {
-        $parameters['updated_since'] = $lastUpdateTime;
-      }
-    }
-
-    $lastUpdateTime = $this->fetchResources('/clients', $parameters,
-      function($client) use ($all) {
-        $this->getEventManager()->trigger('clientUpdated', $this, [
-          'client' => $client,
-          'flush' => $all,
-        ]);
-      });
-
-    // update last client update time
-    if ($lastUpdateTime !== null) {
-      $this->setLastClientUpdateTime($lastUpdateTime);
-    }
-
-    return $this;
+  public function handleClientUpdate($client) {
+    $this->getEventManager()->trigger('clientUpdated', $this, [
+      'client' => $client,
+    ]);
   }
 
   protected function fetchResources(
-    $collectionPath, array $parameters, callable $handler
+    $collectionPath,
+    $lastUpdateTime,
+    callable $updateHandler,
+    callable $lastUpdateTimeHandler = null
   ) {
     $count = self::PAGE_RESOURCE_COUNT;
-    $offset = 0;
-
-    // track last update time
-    $lastUpdateTime = 0;
-    if (isset($parameters['update_time'])) {
-      $lastUpdateTime = $parameters['update_time'];
-    }
 
     // do not fetch all resources at once, fetch them page by page
     do {
       // fetch page of resources
       $resources = $this->getBackboneService()->get(
-        $collectionPath,
-        array_merge($parameters, [
-          'offset' => $offset,
+        $collectionPath, [
+          'updated_since' => $lastUpdateTime,
           'count' => $count,
-        ])
+        ]
       );
 
       // handle each updated resource
       foreach ($resources as $resource) {
-        $handler($resource);
-
-        $lastUpdateTime =
-          max($lastUpdateTime, $resource['updateTime']);
+        $updateHandler($resource);
+        $lastUpdateTime = max($lastUpdateTime, $resource['updateTime']);
       }
 
-      // set offset for next request
-      $offset += $count;
+      // track last update time
+      if ($lastUpdateTimeHandler !== null) {
+        $lastUpdateTimeHandler($lastUpdateTime);
+      }
 
       // log
       trigger_error(sprintf(
-        '%s - Fetching resource updates for %s (%d)',
+        '%s - Fetched %d %s resources updated since %s',
         __METHOD__,
+        count($resources),
         $collectionPath,
-        $offset
+        date('Y-m-d H:i:s', $lastUpdateTime)
       ), E_USER_NOTICE);
 
     } while (count($resources) === $count);
 
-    // return last update time
-    return ($lastUpdateTime > 0 ? $lastUpdateTime : null);
+    // successfully reached the end of the feed
+    return true;
   }
 }

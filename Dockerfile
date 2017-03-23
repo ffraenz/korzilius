@@ -22,6 +22,10 @@ RUN a2ensite site.conf
 RUN curl -sS https://getcomposer.org/installer \
   | php -- --install-dir=/usr/local/bin --filename=composer
 
+# set timezone
+ENV TIMEZONE=Europe/Luxembourg
+RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
+
 ADD . /var/www/html
 
 WORKDIR /var/www/html
