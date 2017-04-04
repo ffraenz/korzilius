@@ -1,0 +1,18 @@
+
+.btn {
+  display: inline-block;
+  height: 40px;
+  line-height: 28px;
+  padding: 4px 12px;
+  border: 2px solid $color-ci-gray;
+  background: $color-ci-gray;
+  color: $color-white;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+
+  &:hover {
+    background: transparent;
+    color: $color-ci-gray;
+  }
+}

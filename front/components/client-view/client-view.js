@@ -11,7 +11,7 @@ const ClientView = props => {
   let title = client.company
     ? client.company : client.firstname + ' ' + client.lastname
 
-  let detailItems = composeDetailItems(client)
+  let detailItems = composeDetailItems(props, client)
 
   return (
     <div className="client-view">
@@ -43,7 +43,7 @@ const ClientView = props => {
   )
 }
 
-function composeDetailItems (client) {
+function composeDetailItems (props, client) {
   // compose private section
   let privateSection = []
 
@@ -188,34 +188,182 @@ function composeDetailItems (client) {
     title: 'Formularer',
   })
 
+  let targetFormField = {
+    name: 'target',
+    type: 'select',
+    label: 'Ziel',
+    choices: [
+      'Als PDF un Elo schécken',
+      'Als TIF un Elo schécken',
+      'Mat Sekretariat drucken',
+      'Mat Aquarium drucken'
+    ]
+  }
+
+  let issuerFormField = {
+    name: 'issuer',
+    type: 'select',
+    label: 'Ausgestallt vun',
+    choices: [
+      'Fernand Friederes',
+      'Tilly Housse',
+      'Ken Friederes'
+    ]
+  }
+
+  let dateFormField = {
+    name: 'date',
+    type: 'radio',
+    label: 'Datum',
+    default: 'today',
+    choices: ['today', 'tomorrow', 'none'],
+    choiceLabels: ['Haut', 'Muer', 'Keen']
+  }
+
   formSection.push({
     text: 'Protocole d\'entrevue',
     icon: 'file-text-o',
-    href: '#'
+    onClick: () => {
+
+      props.onModalChange({
+        title: 'Protocole d\'entrevue',
+        onSubmit: (data) => {
+          console.log(data)
+        },
+        formFields: [
+          {
+            name: 'subject',
+            type: 'text',
+            label: 'Betreffzeil'
+          },
+          dateFormField,
+          {
+            name: 'text',
+            type: 'text',
+            label: 'Text',
+            multiline: true
+          },
+          issuerFormField,
+          targetFormField
+        ]
+      })
+
+    }
   })
 
   formSection.push({
     text: 'Note au département',
     icon: 'file-text-o',
-    href: '#'
+    onClick: () => {
+
+      props.onModalChange({
+        title: 'Note au département',
+        onSubmit: (data) => {
+          console.log(data)
+        },
+        formFields: [
+          {
+            name: 'contract',
+            type: 'select',
+            label: 'Kontrakt',
+            choices: [
+              'Safe invest – 00/123456',
+              'ProWohnen – 123456123456-7',
+              'Easy – P12345678'
+            ]
+          },
+          {
+            name: 'text',
+            type: 'text',
+            label: 'Text',
+            multiline: true
+          },
+          issuerFormField,
+          targetFormField
+        ]
+      })
+
+    }
   })
 
   formSection.push({
     text: 'Estimation',
     icon: 'file-text-o',
-    href: '#'
+    onClick: () => {
+
+      props.onModalChange({
+        title: 'Estimation',
+        onSubmit: (data) => {
+          console.log(data)
+        },
+        formFields: [
+          {
+            name: 'subject',
+            type: 'text',
+            label: 'Betreffzeil'
+          },
+          dateFormField,
+          targetFormField
+        ]
+      })
+
+    }
   })
 
   formSection.push({
     text: 'Inventaire avant-projet',
     icon: 'file-text-o',
-    href: '#'
+    onClick: () => {
+
+      props.onModalChange({
+        title: 'Inventaire avant-projet',
+        onSubmit: (data) => {
+          console.log(data)
+        },
+        formFields: [
+          {
+            name: 'subject',
+            type: 'text',
+            label: 'Betreffzeil'
+          },
+          {
+            name: 'type',
+            type: 'text',
+            label: 'Typ',
+            type: 'radio',
+            default: 'EasyPRO',
+            choices: ['EasyPRO', 'EasyPROAgricole']
+          },
+          dateFormField,
+          targetFormField
+        ]
+      })
+
+    }
   })
 
   formSection.push({
     text: 'Ventilation Vehi. Auto. Agricoles',
     icon: 'file-text-o',
-    href: '#'
+    onClick: () => {
+
+      props.onModalChange({
+        title: 'Inventaire avant-projet',
+        onSubmit: (data) => {
+          console.log(data)
+        },
+        formFields: [
+          {
+            name: 'subject',
+            type: 'text',
+            label: 'Betreffzeil'
+          },
+          dateFormField,
+          targetFormField
+        ]
+      })
+
+    }
   })
 
   // merge sections if they have any items

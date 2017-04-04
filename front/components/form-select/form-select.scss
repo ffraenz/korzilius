@@ -1,0 +1,18 @@
+
+.form-select {
+  position: relative;
+
+  &__select {
+    @extend .form-text;
+  }
+
+  &::after {
+    content: '';
+    font-family: FontAwesome;
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translate(0, -50%);
+    pointer-events: none;
+  }
+}

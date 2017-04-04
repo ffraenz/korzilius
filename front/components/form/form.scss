@@ -1,0 +1,19 @@
+
+.form {
+
+  &__field {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  &__help {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+}

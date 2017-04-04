@@ -1,0 +1,49 @@
+
+.form-radio {
+  $block: &;
+  display: flex;
+  flex-direction: row;
+
+  &__choice {
+    display: block;
+    position: relative;
+    flex-grow: 1;
+  }
+
+  &__input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+
+  &__label {
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    height: 40px;
+    line-height: 36px;
+    padding: 0 16px;
+    border: 1px solid $color-line-secondary;
+    user-select: none;
+
+    #{$block}__choice ~ #{$block}__choice & {
+      border-left: none;
+    }
+
+    #{$block}__input:checked ~ & {
+      border-color: transparent;
+      background: $color-line-secondary;
+    }
+
+    #{$block}__choice:first-child & {
+      border-radius: 5px 0 0 5px;
+    }
+
+    #{$block}__choice:last-child & {
+      border-radius: 0 5px 5px 0;
+    }
+  }
+}

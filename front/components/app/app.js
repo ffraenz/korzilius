@@ -7,6 +7,7 @@ import AppHeader from '../app-header/app-header'
 import ClientView from '../client-view/client-view'
 import SearchField from '../search-field/search-field'
 import Scrollable from '../scrollable/scrollable'
+import Modal from '../modal/modal'
 
 const CLIENTS_PAGE_COUNT = 20
 const CLIENT_MESSAGES_PAGE_COUNT = 30
@@ -305,9 +306,11 @@ export default class App extends React.Component {
         <ClientView
           client={client}
           messages={messages}
+          onModalChange={modal => this.setState({ modal })}
           onMessagePost={(channel, text) =>
             this.postMessageToClient(client, channel, text)}
-          onMessagesEndReached={this.fetchNextClientMessagesPage.bind(this)} />)
+          onMessagesEndReached={this.fetchNextClientMessagesPage.bind(this)} />
+      )
     }
 
     return (
@@ -334,6 +337,12 @@ export default class App extends React.Component {
             {clientView}
           </div>
         </div>
+        { this.state.modal
+          ? React.createElement(Modal, Object.assign({
+              onDismiss: () => this.setState({ modal: null }),
+              onSubmit: () => this.setState({ modal: null })
+            }, this.state.modal))
+          : null }
       </div>
     )
   }

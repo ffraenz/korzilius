@@ -1,0 +1,87 @@
+
+.modal {
+  $block: &;
+
+  &__backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    background: rgba($color-black, 0.4);
+  }
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 50px 0 60px;
+    z-index: 1050;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  &__dialog {
+    display: block;
+    position: relative;
+    width: 500px;
+    max-width: 500px;
+    margin: auto;
+    background: $color-white;
+    border-radius: 3px;
+    box-shadow: 0 2px 8px 0 rgba($color-black, .2);
+  }
+
+  &__header {
+    padding: 32px;
+    margin-bottom: -8px;
+  }
+
+  &__title {
+    margin: 0;
+    font-weight: bold;
+  }
+
+  &__subtitle {
+    
+  }
+
+  &__close-btn {
+    display: block;
+    position: absolute;
+    top: 22px;
+    right: 18px;
+    padding: 14px;
+    font-size: 0;
+    color: $color-text;
+
+    &::before {
+      content: '';
+      @extend .icon;
+      font-size: 18px;
+    }
+  }
+
+  &__content {
+    padding: 32px;
+
+    #{$block}__header ~ & {
+      margin-top: -32px;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 26px 32px;
+    border-radius: 0 0 5px 5px;
+    border-top: 1px solid $color-line-secondary;
+  }
+}
