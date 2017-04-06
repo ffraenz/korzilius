@@ -10,6 +10,7 @@ return [
   'service_manager' => [
     'factories' => [
       Service\MessageService::class => Factory\Service\MessageService::class,
+      Service\FormService::class => InvokableFactory::class,
       Mapper\MessageMapper::class => Factory\Mapper\MessageMapper::class,
       Mapper\ClientMapper::class => InvokableFactory::class,
       Mapper\UserMapper::class => InvokableFactory::class,
@@ -23,6 +24,7 @@ return [
   'controllers' => [
     'factories' => [
       Controller\IndexController::class => Factory\Controller\IndexController::class,
+      Controller\FormController::class => Factory\Controller\FormController::class,
       Controller\ClientResourceController::class => Factory\Controller\ClientResourceController::class,
       Controller\MessageResourceController::class => Factory\Controller\MessageResourceController::class,
     ],
@@ -73,6 +75,20 @@ return [
                   'route' => '/messages[/]',
                   'defaults' => [
                     'controller' => Controller\MessageResourceController::class,
+                  ],
+                ],
+              ],
+              'forms' => [
+                'type' => Segment::class,
+                'may_terminate' => false,
+                'options' => [
+                  'route' => '/forms[/:form_name]',
+                  'constraints' => [
+                    'client_id' => '[^/]+',
+                  ],
+                  'defaults' => [
+                    'controller' => Controller\FormController::class,
+                    'action' => 'create',
                   ],
                 ],
               ],

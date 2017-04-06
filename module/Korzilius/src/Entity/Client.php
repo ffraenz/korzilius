@@ -98,4 +98,45 @@ class Client extends AbstractEntity {
       ],
     ],
   ];
+
+  public function getNameLabel() {
+    return !empty($this->getCompany())
+      ? $this->getCompany()
+      : sprintf(
+          '%s %s',
+          $this->getLastname(),
+          $this->getFirstname());
+  }
+
+  public function getFullNameLabel() {
+    return !empty($this->getCompany())
+      ? sprintf(
+          '%s / %s %s %s',
+          $this->getCompany(),
+          $this->getTitle(),
+          $this->getLastname(),
+          $this->getFirstname())
+      : sprintf(
+          '%s %s %s',
+          $this->getTitle(),
+          $this->getLastname(),
+          $this->getFirstname());
+  }
+
+  public function getStreetLabel() {
+    $street = implode(', ', array_filter([
+      $this->getHouseNumber(),
+      $this->getStreet(),
+    ]));
+    return !empty($street) ? $street : null;
+  }
+
+  public function getLocationLabel() {
+    $location = implode(' ', array_filter([
+      strtoupper($this->getCountry()),
+      $this->getPostCode(),
+      $this->getLocation(),
+    ]));
+    return !empty($location) ? $location : null;
+  }
 }
