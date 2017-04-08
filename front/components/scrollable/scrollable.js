@@ -76,9 +76,7 @@ export default class Scrollable extends React.Component {
     )
 
     if (this.state.scrolling !== scrolling) {
-      this.setState({
-        scrolling: scrolling
-      })
+      this.setState({ scrolling })
     }
 
     if (this.props.infiniteScrolling) {

@@ -48,6 +48,20 @@ export default class SearchField extends React.Component {
     }, 300)
   }
 
+  onKeyDown (evt) {
+    let code = evt.keyCode || evt.which
+
+    if (code === 38 && this.props.onSelectPreviousResult) {
+      this.props.onSelectPreviousResult()
+      evt.preventDefault()
+    }
+
+    if (code === 40 && this.props.onSelectNextResult) {
+      this.props.onSelectNextResult()
+      evt.preventDefault()
+    }
+  }
+
   render () {
     return (
       <div className="search-field">
@@ -55,7 +69,8 @@ export default class SearchField extends React.Component {
           value={this.state.value}
           className="search-field__input"
           placeholder="Sichen"
-          onChange={this.onChange.bind(this)} />
+          onChange={this.onChange.bind(this)}
+          onKeyDown={this.onKeyDown.bind(this)} />
       </div>
     )
   }

@@ -47,9 +47,7 @@ export default class App extends React.Component {
   }
 
   findClient (id) {
-    return this.state.clients.find(client => {
-      return client.id === id
-    })
+    return this.state.clients.find(client => client.id === id)
   }
 
   fetchNextClientsPage () {
@@ -94,12 +92,14 @@ export default class App extends React.Component {
     return request(`/api/clients/${clientId}`)
       .then(response => {
         let client = response.data
-        this.integrateClients([client])
-        return client
+        let integratedClients = this.integrateClients([client])
+        return integratedClients[0]
       })
   }
 
   integrateClients (clients) {
+    let integratedClients = []
+
     // integrate each client in local state
     clients.forEach(client => {
       // set flags on client
@@ -107,14 +107,20 @@ export default class App extends React.Component {
       client.reachedMessagesEnd = false
 
       // check if client already exists
-      let existingClient = this.findClient(client)
+      let existingClient = this.findClient(client.id)
       if (existingClient !== undefined) {
-        // replace client with new one
-        let index = this.state.clients.indexOf(existingClient)
-        this.state.clients.splice(index, 1, client)
+        // update client
+        if (existingClient.updateTime < client.updateTime) {
+          for (let key in client) {
+            existingClient[key] = client[key]
+          }
+        }
+
+        integratedClients.push(existingClient)
       } else {
         // append client to local state
         this.state.clients.push(client)
+        integratedClients.push(client)
       }
     })
 
@@ -127,6 +133,7 @@ export default class App extends React.Component {
     }
 
     this.setState(this.state)
+    return integratedClients
   }
 
   fetchNextClientMessagesPage (client) {
@@ -204,6 +211,11 @@ export default class App extends React.Component {
   }
 
   selectClient (client) {
+    if (this.state.client === client) {
+      // nothing to do
+      return
+    }
+
     this.state.client = client
     this.setState(this.state)
 
@@ -214,6 +226,31 @@ export default class App extends React.Component {
       // request messages for this client for the first time
       this.fetchNextClientMessagesPage(client)
     }
+  }
+
+  selectNextClient (forward = true) {
+    // choose client list
+    let clients = !this.state.searching
+      ? this.state.clients
+      : this.state.clientSearchResults
+
+    let index = clients.indexOf(this.state.client)
+    if (index === -1) {
+      // select first
+      index = 0
+    } else {
+      // move selection
+      if (forward) {
+        index = Math.min(index + 1, clients.length - 1)
+      } else {
+        index = Math.max(index - 1, 0)
+      }
+    }
+
+    // select client
+    let client = clients[index]
+    this.selectClient(client)
+    return client
   }
 
   getMessagesForClient (client) {
@@ -264,10 +301,8 @@ export default class App extends React.Component {
         return
       }
 
-      let clients = response.data
-      this.setState({
-        clientSearchResults: clients
-      })
+      let clients = this.integrateClients(response.data)
+      this.setState({ clientSearchResults: clients })
     }).catch(() => {
       this.setState({ clientSearchResults: [] })
     })
@@ -322,7 +357,9 @@ export default class App extends React.Component {
               <SearchField
                 onStart={this.onStartSearching.bind(this)}
                 onFinish={this.onFinishSearching.bind(this)}
-                onSearch={this.onSearch.bind(this)} />
+                onSearch={this.onSearch.bind(this)}
+                onSelectPreviousResult={() => this.selectNextClient(false)}
+                onSelectNextResult={() => this.selectNextClient(true)} />
             </header>
             <div className="split-view__master">
               <Scrollable
